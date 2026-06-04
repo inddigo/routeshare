@@ -48,6 +48,9 @@ export const COLORS = {
   cardBackground: '#FFFFFF',        // Fondo de tarjetas
   textLink: '#149C8E',              // Enlaces -> turquesa oscuro
   statusConfirmed: '#1FC9B7',       // Estado confirmado -> acento turquesa
+  divider: '#EDEDF0',              // Líneas divisorias
+  statusBadgeGreen: 'rgba(31, 201, 183, 0.15)', // Fondo de badge -> turquesa suave
+  statusTextGreen: '#149C8E',     // Texto de badge -> turquesa oscuro
 };
 
 export const FONTS = {

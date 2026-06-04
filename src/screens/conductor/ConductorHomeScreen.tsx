@@ -64,7 +64,7 @@ const ConductorHomeScreen = ({ navigation }: any) => {
           onPress={() => {}} 
           variant="outline"
           style={styles.publishedButton}
-          textStyle={{ color: COLORS.successGreen, fontWeight: FONTS.medium, fontSize: FONTS.md }}
+          textStyle={{ color: COLORS.accentDark, fontWeight: FONTS.medium, fontSize: FONTS.md }}
         />
 
         <Text style={styles.listTitle}>Próximos viajes</Text>
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: SPACING.xl,
     paddingVertical: SPACING.md,
-    backgroundColor: COLORS.primary, // Dark blue from mockups
+    backgroundColor: COLORS.primary, // Negro marca
   },
   headerIcon: {
     fontSize: 24,
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: SPACING.xl,
-    backgroundColor: '#EBEBEB', // Light gray background shown in the driver mockup
+    backgroundColor: COLORS.lightGrey,
   },
   profileSection: {
     flexDirection: 'row',
@@ -172,13 +172,13 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   publishButton: {
-    backgroundColor: '#2ecc71', // Bright green from mockup
+    backgroundColor: COLORS.accent,
     borderRadius: RADIUS.pill,
     height: 48,
     marginBottom: SPACING.xs,
   },
   publishedButton: {
-    borderColor: '#2ecc71',
+    borderColor: COLORS.accent,
     borderRadius: RADIUS.pill,
     height: 48,
     marginBottom: SPACING.xl,
@@ -251,14 +251,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   badge: {
-    backgroundColor: '#A8E6CF', // Light green
+    backgroundColor: COLORS.statusBadgeGreen,
     paddingHorizontal: SPACING.lg,
     paddingVertical: 4,
     borderRadius: RADIUS.pill,
   },
   badgeText: {
     fontSize: FONTS.sm,
-    color: COLORS.successGreen,
+    color: COLORS.statusTextGreen,
     fontWeight: FONTS.medium,
   },
 });

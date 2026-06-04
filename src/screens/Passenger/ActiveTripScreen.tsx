@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { noShowService } from '../../services/noShowService';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../constants/theme';
 
 const ActiveTripScreen = ({ route, navigation }: any) => {
   const { reserva } = route.params;
@@ -54,7 +55,7 @@ const ActiveTripScreen = ({ route, navigation }: any) => {
       
       <View style={styles.statusCard}>
         <Text style={styles.statusLabel}>Estado actual:</Text>
-        <Text style={[styles.statusValue, isCompleted && { color: '#2e7d32' }]}>
+        <Text style={[styles.statusValue, isCompleted && { color: COLORS.successGreen }]}>
           {viaje.estado.toUpperCase()}
         </Text>
       </View>
@@ -62,7 +63,7 @@ const ActiveTripScreen = ({ route, navigation }: any) => {
       {!isCompleted && viaje.estado === 'programado' && (
         <View style={styles.timerCard}>
           <Text style={styles.timerLabel}>Tolerancia de espera:</Text>
-          <Text style={[styles.timerValue, isNoShow && { color: '#d32f2f' }]}>
+          <Text style={[styles.timerValue, isNoShow && { color: COLORS.danger }]}>
             {noShowService.formatTimeRemaining(timeRemaining)}
           </Text>
           
@@ -96,24 +97,24 @@ const ActiveTripScreen = ({ route, navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', padding: 16 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#333', marginBottom: 20 },
-  statusCard: { backgroundColor: '#fff', borderRadius: 12, padding: 20, marginBottom: 16, alignItems: 'center', elevation: 2 },
-  statusLabel: { fontSize: 16, color: '#666' },
-  statusValue: { fontSize: 28, fontWeight: 'bold', color: '#00529b', marginTop: 8 },
-  timerCard: { backgroundColor: '#fff', borderRadius: 12, padding: 20, alignItems: 'center', elevation: 2 },
-  timerLabel: { fontSize: 14, color: '#666' },
-  timerValue: { fontSize: 48, fontWeight: 'bold', color: '#333', marginVertical: 10, fontVariant: ['tabular-nums'] },
-  infoText: { fontSize: 13, color: '#999', textAlign: 'center', marginTop: 10 },
-  noShowContainer: { alignItems: 'center', width: '100%', marginTop: 10 },
-  warningText: { color: '#d32f2f', fontWeight: 'bold', marginBottom: 12 },
-  refundButton: { backgroundColor: '#ffebee', padding: 16, borderRadius: 12, width: '100%', alignItems: 'center', borderWidth: 1, borderColor: '#ffcdd2' },
-  refundText: { color: '#d32f2f', fontWeight: 'bold', fontSize: 16 },
-  completedCard: { backgroundColor: '#e8f5e9', borderRadius: 12, padding: 24, alignItems: 'center', borderWidth: 1, borderColor: '#c8e6c9' },
-  completedTitle: { fontSize: 22, fontWeight: 'bold', color: '#2e7d32', marginBottom: 8 },
-  completedSub: { fontSize: 14, color: '#2e7d32', textAlign: 'center', marginBottom: 20 },
-  rateButton: { backgroundColor: '#2e7d32', padding: 16, borderRadius: 12, width: '100%', alignItems: 'center' },
-  rateButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 }
+  container: { flex: 1, backgroundColor: COLORS.lightGrey, padding: SPACING.lg },
+  title: { fontSize: FONTS.hero, fontWeight: FONTS.heavy, color: COLORS.textPrimary, marginBottom: SPACING.xl },
+  statusCard: { backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: SPACING.xl, marginBottom: SPACING.lg, alignItems: 'center', ...SHADOWS.card },
+  statusLabel: { fontSize: FONTS.lg, color: COLORS.textSecondary },
+  statusValue: { fontSize: 28, fontWeight: FONTS.heavy, color: COLORS.textPrimary, marginTop: SPACING.sm },
+  timerCard: { backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: SPACING.xl, alignItems: 'center', ...SHADOWS.card },
+  timerLabel: { fontSize: FONTS.md, color: COLORS.textSecondary },
+  timerValue: { fontSize: 48, fontWeight: FONTS.heavy, color: COLORS.textPrimary, marginVertical: SPACING.md, fontVariant: ['tabular-nums'] },
+  infoText: { fontSize: FONTS.sm, color: COLORS.textMuted, textAlign: 'center', marginTop: SPACING.md },
+  noShowContainer: { alignItems: 'center', width: '100%', marginTop: SPACING.md },
+  warningText: { color: COLORS.danger, fontWeight: FONTS.bold, marginBottom: SPACING.md },
+  refundButton: { backgroundColor: '#FDECEA', padding: SPACING.lg, borderRadius: RADIUS.md, width: '100%', alignItems: 'center', borderWidth: 1, borderColor: '#F5C6C2' },
+  refundText: { color: COLORS.danger, fontWeight: FONTS.bold, fontSize: FONTS.lg },
+  completedCard: { backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: SPACING.xxl, alignItems: 'center', borderWidth: 1, borderColor: COLORS.border, ...SHADOWS.card },
+  completedTitle: { fontSize: FONTS.xxl, fontWeight: FONTS.heavy, color: COLORS.textPrimary, marginBottom: SPACING.sm },
+  completedSub: { fontSize: FONTS.md, color: COLORS.textSecondary, textAlign: 'center', marginBottom: SPACING.xl },
+  rateButton: { backgroundColor: COLORS.buttonPrimary, padding: SPACING.lg, borderRadius: RADIUS.md, width: '100%', alignItems: 'center' },
+  rateButtonText: { color: COLORS.buttonPrimaryText, fontWeight: FONTS.bold, fontSize: FONTS.lg }
 });
 
 export default React.memo(ActiveTripScreen);

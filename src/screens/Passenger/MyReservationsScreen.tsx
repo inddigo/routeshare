@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { supabase } from '../../services/supabase';
 import { reservationService } from '../../services/reservationService';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../constants/theme';
 
 const MyReservationsScreen = ({ navigation }: any) => {
   const [reservas, setReservas] = useState<any[]>([]);
@@ -34,19 +35,19 @@ const MyReservationsScreen = ({ navigation }: any) => {
 
   const getStatusColor = (estado: string) => {
     switch (estado) {
-      case 'confirmada': return '#e8f5e9';
-      case 'pendiente': return '#fff3e0';
-      case 'cancelada': case 'rechazada': return '#ffebee';
-      default: return '#f5f5f5';
+      case 'confirmada': return COLORS.statusBadgeGreen;
+      case 'pendiente': return 'rgba(245, 166, 35, 0.15)';
+      case 'cancelada': case 'rechazada': return '#FDECEA';
+      default: return COLORS.lightGrey;
     }
   };
 
   const getStatusTextColor = (estado: string) => {
     switch (estado) {
-      case 'confirmada': return '#2e7d32';
-      case 'pendiente': return '#f57c00';
-      case 'cancelada': case 'rechazada': return '#d32f2f';
-      default: return '#666';
+      case 'confirmada': return COLORS.statusTextGreen;
+      case 'pendiente': return COLORS.warning;
+      case 'cancelada': case 'rechazada': return COLORS.danger;
+      default: return COLORS.textSecondary;
     }
   };
 
@@ -95,7 +96,7 @@ const MyReservationsScreen = ({ navigation }: any) => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#00529b" style={styles.loader} />;
+    return <ActivityIndicator size="large" color={COLORS.accent} style={styles.loader} />;
   }
 
   return (
@@ -113,23 +114,23 @@ const MyReservationsScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1, backgroundColor: COLORS.lightGrey },
   loader: { flex: 1, justifyContent: 'center' },
-  listContainer: { padding: 16 },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, elevation: 2 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  fecha: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  statusText: { fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' },
-  conductor: { fontSize: 14, color: '#666', marginBottom: 4 },
-  ruta: { fontSize: 14, color: '#666' },
-  pinContainer: { backgroundColor: '#e6f0fa', borderRadius: 8, padding: 12, marginTop: 12, alignItems: 'center' },
-  pinLabel: { fontSize: 12, color: '#00529b', marginBottom: 4 },
-  pinCode: { fontSize: 24, fontWeight: 'bold', color: '#00529b', letterSpacing: 8 },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingTop: 12 },
-  pagoStatus: { fontSize: 13, color: '#999', textTransform: 'capitalize' },
-  actionText: { fontSize: 13, color: '#00529b', fontWeight: 'bold' },
-  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16, color: '#999' }
+  listContainer: { padding: SPACING.lg },
+  card: { backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: SPACING.lg, marginBottom: SPACING.lg, ...SHADOWS.card },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md },
+  fecha: { fontSize: FONTS.lg, fontWeight: FONTS.bold, color: COLORS.textPrimary },
+  statusBadge: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs, borderRadius: RADIUS.pill },
+  statusText: { fontSize: FONTS.xs, fontWeight: FONTS.bold, textTransform: 'uppercase' },
+  conductor: { fontSize: FONTS.md, color: COLORS.textSecondary, marginBottom: SPACING.xs },
+  ruta: { fontSize: FONTS.md, color: COLORS.textSecondary },
+  pinContainer: { backgroundColor: COLORS.statusBadgeGreen, borderRadius: RADIUS.sm, padding: SPACING.md, marginTop: SPACING.md, alignItems: 'center' },
+  pinLabel: { fontSize: FONTS.xs, color: COLORS.accentDark, marginBottom: SPACING.xs },
+  pinCode: { fontSize: FONTS.xxl, fontWeight: FONTS.heavy, color: COLORS.accentDark, letterSpacing: 8 },
+  footer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: SPACING.lg, borderTopWidth: 1, borderTopColor: COLORS.divider, paddingTop: SPACING.md },
+  pagoStatus: { fontSize: FONTS.sm, color: COLORS.textMuted, textTransform: 'capitalize' },
+  actionText: { fontSize: FONTS.sm, color: COLORS.accentDark, fontWeight: FONTS.bold },
+  emptyText: { textAlign: 'center', marginTop: SPACING.section, fontSize: FONTS.lg, color: COLORS.textMuted }
 });
 
 export default React.memo(MyReservationsScreen);

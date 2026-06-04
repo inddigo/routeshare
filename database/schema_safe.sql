@@ -4,7 +4,7 @@
 -- ==========================================
 
 -- 1. Usuarios (Extensión de auth.users)
-CREATE TABLE public.usuarios (
+CREATE TABLE IF NOT EXISTS public.usuarios (
     id UUID REFERENCES auth.users NOT NULL PRIMARY KEY,
     email TEXT UNIQUE NOT NULL CHECK (email ~ '^[a-zA-Z0-9._%+-]+@(?:mail\.)?pucv\.cl$'),
     nombre TEXT NOT NULL,
@@ -22,19 +22,22 @@ CREATE TABLE public.usuarios (
 ALTER TABLE public.usuarios ENABLE ROW LEVEL SECURITY;
 
 -- Políticas RLS para usuarios
+DROP POLICY IF EXISTS "Usuarios pueden ver perfiles" ON public.usuarios;
 CREATE POLICY "Usuarios pueden ver perfiles" ON public.usuarios
     FOR SELECT USING (auth.uid() IS NOT NULL);
 
+DROP POLICY IF EXISTS "Usuarios pueden actualizar su propio perfil" ON public.usuarios;
 CREATE POLICY "Usuarios pueden actualizar su propio perfil" ON public.usuarios
     FOR UPDATE USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Usuarios pueden insertar su propio perfil" ON public.usuarios;
 CREATE POLICY "Usuarios pueden insertar su propio perfil" ON public.usuarios
     FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- ==========================================
 -- 2. Conductores (Verificación de documentos)
 -- ==========================================
-CREATE TABLE public.conductores (
+CREATE TABLE IF NOT EXISTS public.conductores (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     usuario_id UUID REFERENCES public.usuarios(id) NOT NULL,
     licencia_url TEXT,
@@ -48,19 +51,22 @@ CREATE TABLE public.conductores (
 ALTER TABLE public.conductores ENABLE ROW LEVEL SECURITY;
 
 -- Políticas RLS para conductores
+DROP POLICY IF EXISTS "Usuarios pueden registrarse como conductor" ON public.conductores;
 CREATE POLICY "Usuarios pueden registrarse como conductor" ON public.conductores
     FOR INSERT WITH CHECK (auth.uid() = usuario_id);
 
+DROP POLICY IF EXISTS "Usuarios autenticados pueden ver conductores" ON public.conductores;
 CREATE POLICY "Usuarios autenticados pueden ver conductores" ON public.conductores
     FOR SELECT USING (auth.uid() IS NOT NULL);
 
+DROP POLICY IF EXISTS "Conductores pueden actualizar su propio registro" ON public.conductores;
 CREATE POLICY "Conductores pueden actualizar su propio registro" ON public.conductores
     FOR UPDATE USING (auth.uid() = usuario_id);
 
 -- ==========================================
 -- 3. Vehículos
 -- ==========================================
-CREATE TABLE public.vehiculos (
+CREATE TABLE IF NOT EXISTS public.vehiculos (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     conductor_id UUID REFERENCES public.conductores(id) NOT NULL,
     patente TEXT UNIQUE NOT NULL,
@@ -74,14 +80,17 @@ CREATE TABLE public.vehiculos (
 ALTER TABLE public.vehiculos ENABLE ROW LEVEL SECURITY;
 
 -- Políticas RLS para vehiculos
+DROP POLICY IF EXISTS "Conductores pueden registrar su vehículo" ON public.vehiculos;
 CREATE POLICY "Conductores pueden registrar su vehículo" ON public.vehiculos
     FOR INSERT WITH CHECK (
         auth.uid() IN (SELECT usuario_id FROM public.conductores WHERE id = conductor_id)
     );
 
+DROP POLICY IF EXISTS "Usuarios autenticados pueden ver vehículos" ON public.vehiculos;
 CREATE POLICY "Usuarios autenticados pueden ver vehículos" ON public.vehiculos
     FOR SELECT USING (auth.uid() IS NOT NULL);
 
+DROP POLICY IF EXISTS "Conductores pueden actualizar su vehículo" ON public.vehiculos;
 CREATE POLICY "Conductores pueden actualizar su vehículo" ON public.vehiculos
     FOR UPDATE USING (
         auth.uid() IN (SELECT usuario_id FROM public.conductores WHERE id = conductor_id)
@@ -90,7 +99,7 @@ CREATE POLICY "Conductores pueden actualizar su vehículo" ON public.vehiculos
 -- ==========================================
 -- 4. Rutas Frecuentes
 -- ==========================================
-CREATE TABLE public.rutas (
+CREATE TABLE IF NOT EXISTS public.rutas (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     conductor_id UUID REFERENCES public.usuarios(id) NOT NULL,
     origen_lat FLOAT NOT NULL,
@@ -104,22 +113,26 @@ CREATE TABLE public.rutas (
 ALTER TABLE public.rutas ENABLE ROW LEVEL SECURITY;
 
 -- Políticas RLS para rutas
+DROP POLICY IF EXISTS "Conductores pueden crear rutas" ON public.rutas;
 CREATE POLICY "Conductores pueden crear rutas" ON public.rutas
     FOR INSERT WITH CHECK (auth.uid() = conductor_id);
 
+DROP POLICY IF EXISTS "Usuarios autenticados pueden ver rutas" ON public.rutas;
 CREATE POLICY "Usuarios autenticados pueden ver rutas" ON public.rutas
     FOR SELECT USING (auth.uid() IS NOT NULL);
 
+DROP POLICY IF EXISTS "Conductores pueden actualizar sus rutas" ON public.rutas;
 CREATE POLICY "Conductores pueden actualizar sus rutas" ON public.rutas
     FOR UPDATE USING (auth.uid() = conductor_id);
 
+DROP POLICY IF EXISTS "Conductores pueden eliminar sus rutas" ON public.rutas;
 CREATE POLICY "Conductores pueden eliminar sus rutas" ON public.rutas
     FOR DELETE USING (auth.uid() = conductor_id);
 
 -- ==========================================
 -- 5. Viajes (Instancias de una ruta)
 -- ==========================================
-CREATE TABLE public.viajes (
+CREATE TABLE IF NOT EXISTS public.viajes (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ruta_id UUID REFERENCES public.rutas(id) NOT NULL,
     conductor_id UUID REFERENCES public.usuarios(id) NOT NULL,
@@ -132,28 +145,31 @@ CREATE TABLE public.viajes (
 );
 
 -- Crear índice para optimizar consultas de tracking
-CREATE INDEX idx_viajes_estado ON public.viajes(estado) WHERE estado = 'activo';
+CREATE INDEX IF NOT EXISTS idx_viajes_estado ON public.viajes(estado) WHERE estado = 'activo';
 
 -- Habilitar RLS en viajes
 ALTER TABLE public.viajes ENABLE ROW LEVEL SECURITY;
 
 -- Políticas RLS para viajes
+DROP POLICY IF EXISTS "Solo usuarios PUCV pueden ver viajes disponibles" ON public.viajes;
 CREATE POLICY "Solo usuarios PUCV pueden ver viajes disponibles" ON public.viajes
     FOR SELECT USING (
         auth.uid() IN (SELECT id FROM public.usuarios) AND
         (estado = 'programado' OR estado = 'activo')
     );
 
+DROP POLICY IF EXISTS "Solo el conductor puede actualizar su viaje/posición" ON public.viajes;
 CREATE POLICY "Solo el conductor puede actualizar su viaje/posición" ON public.viajes
     FOR UPDATE USING (auth.uid() = conductor_id);
 
+DROP POLICY IF EXISTS "Conductores pueden crear viajes" ON public.viajes;
 CREATE POLICY "Conductores pueden crear viajes" ON public.viajes
     FOR INSERT WITH CHECK (auth.uid() = conductor_id);
 
 -- ==========================================
 -- 6. Reservas
 -- ==========================================
-CREATE TABLE public.reservas (
+CREATE TABLE IF NOT EXISTS public.reservas (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     viaje_id UUID REFERENCES public.viajes(id) NOT NULL,
     pasajero_id UUID REFERENCES public.usuarios(id) NOT NULL,
@@ -168,22 +184,25 @@ CREATE TABLE public.reservas (
 ALTER TABLE public.reservas ENABLE ROW LEVEL SECURITY;
 
 -- Políticas RLS para reservas
+DROP POLICY IF EXISTS "Pasajeros pueden crear reservas" ON public.reservas;
 CREATE POLICY "Pasajeros pueden crear reservas" ON public.reservas
     FOR INSERT WITH CHECK (auth.uid() = pasajero_id);
 
+DROP POLICY IF EXISTS "Conductores pueden ver reservas de sus viajes" ON public.reservas;
 CREATE POLICY "Conductores pueden ver reservas de sus viajes" ON public.reservas
     FOR SELECT USING (
         auth.uid() IN (SELECT conductor_id FROM public.viajes WHERE id = viaje_id) OR
         auth.uid() = pasajero_id
     );
 
+DROP POLICY IF EXISTS "Pasajeros pueden actualizar sus reservas" ON public.reservas;
 CREATE POLICY "Pasajeros pueden actualizar sus reservas" ON public.reservas
     FOR UPDATE USING (auth.uid() = pasajero_id);
 
 -- ==========================================
 -- 7. Pagos
 -- ==========================================
-CREATE TABLE public.pagos (
+CREATE TABLE IF NOT EXISTS public.pagos (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     reserva_id UUID REFERENCES public.reservas(id) NOT NULL,
     monto FLOAT NOT NULL,
@@ -197,6 +216,7 @@ CREATE TABLE public.pagos (
 ALTER TABLE public.pagos ENABLE ROW LEVEL SECURITY;
 
 -- Políticas RLS para pagos
+DROP POLICY IF EXISTS "Usuarios pueden ver sus propios pagos" ON public.pagos;
 CREATE POLICY "Usuarios pueden ver sus propios pagos" ON public.pagos
     FOR SELECT USING (
         auth.uid() IN (
@@ -215,7 +235,7 @@ CREATE POLICY "Usuarios pueden ver sus propios pagos" ON public.pagos
 -- ==========================================
 -- 8. Calificaciones
 -- ==========================================
-CREATE TABLE public.calificaciones (
+CREATE TABLE IF NOT EXISTS public.calificaciones (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     viaje_id UUID REFERENCES public.viajes(id) NOT NULL,
     evaluador_id UUID REFERENCES public.usuarios(id) NOT NULL,
@@ -230,16 +250,18 @@ CREATE TABLE public.calificaciones (
 ALTER TABLE public.calificaciones ENABLE ROW LEVEL SECURITY;
 
 -- Políticas RLS para calificaciones
+DROP POLICY IF EXISTS "Usuarios pueden crear calificaciones propias" ON public.calificaciones;
 CREATE POLICY "Usuarios pueden crear calificaciones propias" ON public.calificaciones
     FOR INSERT WITH CHECK (auth.uid() = evaluador_id);
 
+DROP POLICY IF EXISTS "Todos los autenticados pueden ver calificaciones" ON public.calificaciones;
 CREATE POLICY "Todos los autenticados pueden ver calificaciones" ON public.calificaciones
     FOR SELECT USING (auth.uid() IS NOT NULL);
 
 -- ==========================================
 -- 9. Reportes
 -- ==========================================
-CREATE TABLE public.reportes (
+CREATE TABLE IF NOT EXISTS public.reportes (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     usuario_id UUID REFERENCES public.usuarios(id) NOT NULL,
     viaje_id UUID REFERENCES public.viajes(id) NOT NULL,
@@ -254,8 +276,10 @@ CREATE TABLE public.reportes (
 ALTER TABLE public.reportes ENABLE ROW LEVEL SECURITY;
 
 -- Políticas RLS para reportes
+DROP POLICY IF EXISTS "Usuarios pueden crear reportes propios" ON public.reportes;
 CREATE POLICY "Usuarios pueden crear reportes propios" ON public.reportes
     FOR INSERT WITH CHECK (auth.uid() = usuario_id);
 
+DROP POLICY IF EXISTS "Usuarios pueden ver sus propios reportes" ON public.reportes;
 CREATE POLICY "Usuarios pueden ver sus propios reportes" ON public.reportes
     FOR SELECT USING (auth.uid() = usuario_id);

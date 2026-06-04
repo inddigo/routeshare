@@ -1,151 +1,210 @@
-// src/screens/Auth/LoginScreen.tsx
-import React, { useState, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/AppNavigator';
+import { COLORS, FONTS, SPACING, RADIUS } from '../../constants/theme';
+import CustomInput from '../../components/CustomInput';
+import CustomButton from '../../components/CustomButton';
+import Header from '../../components/Header';
 import { supabase } from '../../services/supabase';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
-// Validar correo institucional (pucv.cl o mail.pucv.cl)
-const PUCV_EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@(?:mail\.)?pucv\.cl$/;
-
 const LoginScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Optimización: useCallback para prevenir que la función se recree en cada render
-  const handleLogin = useCallback(async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Por favor completa todos los campos.');
-      return;
-    }
-
-    if (!PUCV_EMAIL_REGEX.test(email)) {
-      Alert.alert('Acceso Denegado', 'Debes usar un correo institucional (@pucv.cl o @mail.pucv.cl).');
-      return;
-    }
-
+  const handleLogin = async () => {
+    if (!email || !password) return;
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-
     if (error) {
-      Alert.alert('Error de Autenticación', error.message);
+      console.warn('Login Error', error.message);
     }
-    // Si es exitoso, AppNavigator automáticamente detectará la sesión y cambiará de Stack.
-  }, [email, password]);
-
-  const navigateToRegister = useCallback(() => {
-    navigation.navigate('Register');
-  }, [navigation]);
+    // Navigation will be handled automatically by onAuthStateChange in AppNavigator
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>RouteShare</Text>
-      <Text style={styles.subtitle}>Comunidad PUCV</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <Header showBack={true} />
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.title}>Iniciar sesión</Text>
+          <Text style={styles.subtitle}>Ingresa tus datos para continuar</Text>
 
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Correo Institucional"
-          placeholderTextColor="#999"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          // Optimización de UI: evita sugerencias pesadas del teclado
-          autoCorrect={false} 
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
-          placeholderTextColor="#999"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+          <View style={styles.formContainer}>
+            <Text style={styles.label}>Introduce tu correo electrónico</Text>
+            <CustomInput
+              value={email}
+              onChangeText={setEmail}
+              placeholder="correo@correo.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              rightIcon={<Text style={styles.icon}>✉️</Text>} // Use proper SVG icons in production
+            />
 
-        <TouchableOpacity 
-          style={[styles.button, loading && styles.buttonDisabled]} 
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Iniciar Sesión</Text>
-          )}
-        </TouchableOpacity>
+            <Text style={styles.label}>Ingresa tu contraseña</Text>
+            <CustomInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="***********"
+              secureTextEntry={!showPassword}
+              rightIcon={<Text style={styles.icon}>{showPassword ? '👁️' : '🚫'}</Text>}
+              onRightIconPress={() => setShowPassword(!showPassword)}
+            />
 
-        <TouchableOpacity style={styles.linkButton} onPress={navigateToRegister}>
-          <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+            <View style={styles.optionsRow}>
+              <TouchableOpacity 
+                style={styles.checkboxContainer} 
+                onPress={() => setRememberMe(!rememberMe)}
+              >
+                <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
+                  {rememberMe && <Text style={styles.checkMark}>✓</Text>}
+                </View>
+                <Text style={styles.rememberText}>Recuérdame</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                <Text style={styles.forgotText}>Recuperar contraseña</Text>
+              </TouchableOpacity>
+            </View>
+
+            <CustomButton 
+              title="Iniciar sesión" 
+              onPress={handleLogin} 
+              loading={loading}
+              style={{ marginTop: SPACING.xl }}
+            />
+
+            <View style={styles.dividerContainer}>
+              <Text style={styles.dividerText}>o</Text>
+            </View>
+
+            <View style={styles.socialContainer}>
+              {['G', 'f', '🐦'].map((social, idx) => (
+                <TouchableOpacity key={idx} style={styles.socialButton}>
+                  <Text style={styles.socialIcon}>{social}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
-// Optimización: Usar StyleSheet para crear estilos de forma nativa (menos CPU que StyledComponents)
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    justifyContent: 'center',
-    padding: 20,
+    backgroundColor: COLORS.background,
+  },
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: SPACING.xl,
+    paddingTop: SPACING.xxl,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#00529b', // Azul PUCV aproximado
+    fontSize: FONTS.hero,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
     textAlign: 'center',
-    marginBottom: 5,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: FONTS.md,
+    color: COLORS.textSecondary,
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: SPACING.xxxl,
+    marginTop: SPACING.sm,
   },
-  form: {
+  formContainer: {
     width: '100%',
   },
-  input: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
+  label: {
+    fontSize: FONTS.sm,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.xs,
+    marginLeft: SPACING.sm,
+  },
+  icon: {
+    fontSize: 18,
+    color: COLORS.textMuted,
+  },
+  optionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    color: '#333',
-  },
-  button: {
-    backgroundColor: '#00529b',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonDisabled: {
-    backgroundColor: '#7fa8cc',
-  },
-  buttonText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  linkButton: {
-    marginTop: 20,
+    borderColor: COLORS.buttonOutline,
+    borderRadius: 4,
+    marginRight: SPACING.sm,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  linkText: {
-    color: '#00529b',
-    fontWeight: '600',
+  checkboxActive: {
+    backgroundColor: COLORS.buttonPrimary,
+    borderColor: COLORS.buttonPrimary,
+  },
+  checkMark: {
+    color: COLORS.textWhite,
+    fontSize: 12,
+  },
+  rememberText: {
+    fontSize: FONTS.sm,
+    color: COLORS.textPrimary,
+    fontWeight: FONTS.medium,
+  },
+  forgotText: {
+    fontSize: FONTS.sm,
+    color: COLORS.textPrimary,
+    fontWeight: FONTS.bold,
+  },
+  dividerContainer: {
+    alignItems: 'center',
+    marginVertical: SPACING.xl,
+  },
+  dividerText: {
+    fontSize: FONTS.md,
+    color: COLORS.textPrimary,
+    fontWeight: FONTS.bold,
+  },
+  socialContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: SPACING.lg,
+  },
+  socialButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: COLORS.background,
+    borderWidth: 1,
+    borderColor: COLORS.buttonOutline,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  socialIcon: {
+    fontSize: FONTS.xxl,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
   },
 });
 
-export default React.memo(LoginScreen);
+export default LoginScreen;

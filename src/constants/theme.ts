@@ -1,32 +1,43 @@
 // src/constants/theme.ts
-// RouteShare Design System - Light Theme preferred by user
+// RouteShare Design System
+// Identidad "Uber con personalidad propia":
+// base negra + blanco, acento turquesa distintivo de RouteShare.
 
 export const COLORS = {
-  // Primary palette
-  primary: '#00529b',           // Main brand blue
-  accentGreen: '#2EC4B6',       // Green accents if needed
-  
-  // Light theme backgrounds
-  background: '#FFFFFF',        // White background for screens
-  lightGrey: '#F5F5F5',         // Light grey backgrounds (like pages 48-53)
-  inputBackground: '#F0F0F0',   // Light gray for input fields
-  
-  // Text
-  textPrimary: '#000000',       // Black text
-  textSecondary: '#6B7280',     // Gray text
-  textMuted: '#9CA3AF',         // Muted/placeholder text
-  textWhite: '#FFFFFF',
-  
-  // Status
-  successGreen: '#2e7d32',      // Success states
-  danger: '#D32F2F',
+  // Marca / acento (sello propio de RouteShare)
+  primary: '#0A0A0A',           // Negro Uber como color de marca principal
+  accent: '#1FC9B7',            // Turquesa RouteShare (sello distintivo)
+  accentGreen: '#1FC9B7',       // Alias compat: usado por pantallas existentes
+  accentDark: '#149C8E',        // Turquesa oscuro para estados activos/press
 
-  // Buttons
-  buttonPrimary: '#A0A0A0',     // Grey button preferred by user (from mockup pages)
+  // Fondos
+  background: '#FFFFFF',        // Fondo claro principal
+  darkBackground: '#0A0A0A',   // Fondo oscuro (pantallas tipo Welcome/Onboarding)
+  surface: '#FFFFFF',          // Superficie de tarjetas sobre fondo claro
+  surfaceDark: '#161616',      // Superficie de tarjetas sobre fondo oscuro
+  lightGrey: '#F4F4F5',        // Fondos secundarios / secciones
+  inputBackground: '#F4F4F5',  // Relleno de inputs
+  border: '#E5E5E7',           // Bordes sutiles
+
+  // Texto
+  textPrimary: '#0A0A0A',      // Texto principal (casi negro)
+  textSecondary: '#5C5C66',    // Texto secundario
+  textMuted: '#9A9AA5',        // Placeholder / texto atenuado
+  textWhite: '#FFFFFF',
+
+  // Estados
+  successGreen: '#0E9F6E',
+  warning: '#F5A623',
+  danger: '#E53935',
+
+  // Botones
+  buttonPrimary: '#0A0A0A',         // Negro sólido (acción principal)
   buttonPrimaryText: '#FFFFFF',
-  buttonOutline: '#E5E7EB',
-  buttonOutlineText: '#000000',
-  buttonActive: '#707070',      // Darker grey for active
+  buttonActive: '#262626',          // Negro presionado
+  buttonAccent: '#1FC9B7',          // Acento turquesa para CTAs destacados
+  buttonAccentText: '#0A0A0A',
+  buttonOutline: '#E5E5E7',         // Borde de botón outline
+  buttonOutlineText: '#0A0A0A',
 };
 
 export const FONTS = {
@@ -36,12 +47,13 @@ export const FONTS = {
   lg: 16,
   xl: 18,
   xxl: 24,
-  hero: 32,
+  hero: 34,
 
   regular: '400' as const,
   medium: '500' as const,
   semibold: '600' as const,
   bold: '700' as const,
+  heavy: '800' as const,
 };
 
 export const SPACING = {
@@ -71,5 +83,19 @@ export const SHADOWS = {
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 1,
+  },
+  card: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  elevated: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
   },
 };

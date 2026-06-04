@@ -108,27 +108,16 @@ export const driverService = {
 
   rejectReservation: async (reservaId: string) => {
     try {
-      // Obtener el viaje_id
+      // Obtener el viaje_id para restaurar el asiento
       const { data: reserva } = await supabase
         .from('reservas')
         .select('viaje_id')
         .eq('id', reservaId)
         .single();
 
-      // Restaurar el asiento
+      // Restaurar el asiento de forma atomica
       if (reserva) {
-        const { data: viaje } = await supabase
-          .from('viajes')
-          .select('asientos_disponibles')
-          .eq('id', reserva.viaje_id)
-          .single();
-
-        if (viaje) {
-          await supabase
-            .from('viajes')
-            .update({ asientos_disponibles: viaje.asientos_disponibles + 1 })
-            .eq('id', reserva.viaje_id);
-        }
+        await supabase.rpc('liberar_asiento', { p_viaje_id: reserva.viaje_id });
       }
 
       // Actualizar reserva y reembolsar pago
@@ -146,20 +135,17 @@ export const driverService = {
 
   validatePin: async (reservaId: string, pin: string) => {
     try {
-      const { data, error } = await supabase
-        .from('reservas')
-        .select('pin')
-        .eq('id', reservaId)
-        .single();
+      // La validación ocurre en el servidor (RPC SECURITY DEFINER) para no
+      // exponer el PIN al cliente y aplicar el límite de intentos. Ver
+      // database/migrations/01_pin_seguro.sql
+      const { data, error } = await supabase.rpc('validar_pin', {
+        p_reserva_id: reservaId,
+        p_pin: pin,
+      });
 
       if (error) throw error;
-      
-      const isValid = data?.pin === pin;
-      
-      // Si el PIN es correcto, podríamos marcar un flag de "abordó" 
-      // Por ahora, solo devolvemos boolean
-      
-      return { success: true, isValid };
+
+      return { success: true, isValid: data === true };
     } catch (error: any) {
       return { success: false, error: error.message };
     }

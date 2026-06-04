@@ -16,16 +16,21 @@ const LoginScreen = ({ navigation }: Props) => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleLogin = async () => {
-    if (!email || !password) return;
+    if (!email || !password) {
+      setErrorMsg('Ingresa tu correo y contraseña.');
+      return;
+    }
     setLoading(true);
+    setErrorMsg('');
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
-      console.warn('Login Error', error.message);
+      setErrorMsg('No pudimos iniciar sesión. Verifica tus credenciales.');
     }
-    // Navigation will be handled automatically by onAuthStateChange in AppNavigator
+    // La navegación la maneja onAuthStateChange en AppNavigator
   };
 
   return (
@@ -38,6 +43,8 @@ const LoginScreen = ({ navigation }: Props) => {
         <ScrollView contentContainerStyle={styles.container}>
           <Text style={styles.title}>Iniciar sesión</Text>
           <Text style={styles.subtitle}>Ingresa tus datos para continuar</Text>
+
+          {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
           <View style={styles.formContainer}>
             <Text style={styles.label}>Introduce tu correo electrónico</Text>
@@ -123,6 +130,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: SPACING.xxxl,
     marginTop: SPACING.sm,
+  },
+  errorText: {
+    color: COLORS.danger,
+    textAlign: 'center',
+    marginBottom: SPACING.lg,
+    fontWeight: FONTS.medium,
   },
   formContainer: {
     width: '100%',

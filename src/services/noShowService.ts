@@ -2,6 +2,7 @@
 // Servicio de No-Show: gestiona la lógica de inasistencia del conductor (10 min)
 import { supabase } from './supabase';
 import { escrowService } from './escrowService';
+import { logger } from './logger';
 
 const NO_SHOW_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutos en milisegundos
 
@@ -32,19 +33,8 @@ export const noShowService = {
         .update({ estado: 'cancelada', estado_pago: 'reembolsado' })
         .eq('id', reservaId);
 
-      // 3. Incrementar asientos disponibles
-      const { data: viaje } = await supabase
-        .from('viajes')
-        .select('asientos_disponibles')
-        .eq('id', viajeId)
-        .single();
-
-      if (viaje) {
-        await supabase
-          .from('viajes')
-          .update({ asientos_disponibles: viaje.asientos_disponibles + 1 })
-          .eq('id', viajeId);
-      }
+      // 3. Incrementar asientos disponibles (atomico)
+      await supabase.rpc('liberar_asiento', { p_viaje_id: viajeId });
 
       // 4. Crear reporte automático
       const { data: reserva } = await supabase
@@ -67,7 +57,7 @@ export const noShowService = {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error procesando No-Show:', error);
+      logger.error('Error procesando No-Show', error);
       return { success: false, error: error.message };
     }
   },
@@ -84,19 +74,8 @@ export const noShowService = {
       // 2. Reembolsar el pago
       await escrowService.reembolsarPago(reservaId);
 
-      // 3. Incrementar asientos
-      const { data: viaje } = await supabase
-        .from('viajes')
-        .select('asientos_disponibles')
-        .eq('id', viajeId)
-        .single();
-
-      if (viaje) {
-        await supabase
-          .from('viajes')
-          .update({ asientos_disponibles: viaje.asientos_disponibles + 1 })
-          .eq('id', viajeId);
-      }
+      // 3. Incrementar asientos (atomico)
+      await supabase.rpc('liberar_asiento', { p_viaje_id: viajeId });
 
       // 4. Crear reporte
       await supabase
@@ -111,7 +90,7 @@ export const noShowService = {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error reportando no-show de pasajero:', error);
+      logger.error('Error reportando no-show de pasajero', error);
       return { success: false, error: error.message };
     }
   },

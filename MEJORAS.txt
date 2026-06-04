@@ -1,0 +1,50 @@
+================================================================================
+ROUTESHARE - AUDITORIA DE MEJORAS (Seguridad, Codigo y Funcionalidades)
+================================================================================
+Fecha: 2026-06-04
+Rama de integracion: integracion/todo (rediseno + seguridad)
+
+Leyenda: [ ] Pendiente  [x] Resuelto  [~] Parcial / accion manual en Supabase
+
+--------------------------------------------------------------------------------
+SEGURIDAD
+--------------------------------------------------------------------------------
+[x] #1  Credenciales filtradas -> .env.example limpio + supabase.ts sin fallback.
+        ACCION MANUAL: rotar la anon key en Supabase.
+[x] #2  PIN adivinable -> 4 digitos, generador centralizado.
+[~] #3  PIN expuesto via RLS -> RPC validar_pin (migracion 01).
+
+--------------------------------------------------------------------------------
+LOGICA DE NEGOCIO / DATOS
+--------------------------------------------------------------------------------
+[~] #4  Asientos no atomicos -> RPC reservar/liberar_asiento (migracion 02).
+[~] #5  Pagos en el cliente -> Edge Functions (migracion 05, despliegue manual).
+[~] #6  FLOAT para dinero -> NUMERIC (migracion 03) + redondeo en escrow.
+[~] #7  Calificaciones sin verificar -> trigger (migracion 04).
+
+--------------------------------------------------------------------------------
+CODIGO
+--------------------------------------------------------------------------------
+[x] #8  Patron try/catch duplicado -> helper handleServiceCall.
+[x] #9  Logs sensibles -> logger con niveles.
+[x] #10 Sin feedback de error -> LoginScreen (replicar en otras pantallas).
+[x] #11 Faltan tests -> validationService cubierto.
+
+--------------------------------------------------------------------------------
+FRONTEND (rediseno)
+--------------------------------------------------------------------------------
+[x] Identidad estilo Uber (negro + acento turquesa #1FC9B7) en todas las
+    pantallas y componentes base; tokens de tema rotos corregidos.
+
+--------------------------------------------------------------------------------
+BACKLOG (no implementado)
+--------------------------------------------------------------------------------
+[ ] #12 Tracking en vivo   [ ] #13 Boton emergencia   [ ] #14 Push
+[ ] #15 Panel admin        [ ] #16 Historial y recibos
+
+--------------------------------------------------------------------------------
+ACCIONES MANUALES EN SUPABASE
+--------------------------------------------------------------------------------
+1. Rotar la anon key.
+2. Ejecutar database/migrations/01..04 en orden.
+3. Desplegar Edge Functions de pagos (05) y revocar escritura del cliente.

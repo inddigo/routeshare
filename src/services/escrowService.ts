@@ -127,8 +127,9 @@ export const escrowService = {
     return data;
   },
 
-  // Calcular monto neto para el conductor (monto - comisión)
+  // Calcular monto neto para el conductor (monto - comisión), redondeado a
+  // 2 decimales para evitar arrastrar errores de punto flotante.
   calcularMontoNeto: (monto: number): number => {
-    return monto * (1 - COMISION_PORCENTAJE);
+    return Math.round(monto * (1 - COMISION_PORCENTAJE) * 100) / 100;
   },
 };

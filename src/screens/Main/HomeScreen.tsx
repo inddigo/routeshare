@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, SafeAreaView
 } from 'react-native';
-import { COLORS, FONTS, SPACING, RADIUS } from '../../constants/theme';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../constants/theme';
 import CustomButton from '../../components/CustomButton';
 
 const HomeScreen = ({ navigation }: any) => {
@@ -50,7 +50,7 @@ const HomeScreen = ({ navigation }: any) => {
               <Text style={styles.filterTitle}>Filtros de búsqueda</Text>
             </View>
             <TouchableOpacity>
-              <Text style={styles.clearFilters}>↺ Limpiar filtros</Text>
+              <Text style={styles.clearFilters}>↺ Limpiar</Text>
             </TouchableOpacity>
           </View>
 
@@ -116,7 +116,6 @@ const HomeScreen = ({ navigation }: any) => {
             title="Buscar viajes" 
             onPress={() => {}} 
             style={styles.searchButton}
-            textStyle={{ color: COLORS.textWhite }}
           />
         </View>
 
@@ -126,7 +125,7 @@ const HomeScreen = ({ navigation }: any) => {
           <View key={viaje.id} style={styles.tripCard}>
             <View style={styles.tripLeft}>
               <View style={styles.timeline}>
-                <View style={styles.dotEmpty} />
+                <View style={styles.dotFilled} />
                 <View style={styles.line} />
                 <View style={styles.dotEmpty} />
               </View>
@@ -140,7 +139,7 @@ const HomeScreen = ({ navigation }: any) => {
               <View>
                 <Text style={styles.infoText}>📅 {viaje.fecha}</Text>
                 <Text style={styles.infoText}>🕒 {viaje.hora}</Text>
-                <Text style={styles.infoText}>👥 {viaje.asientos} asientos disponibles</Text>
+                <Text style={styles.infoText}>👥 {viaje.asientos} asientos</Text>
               </View>
               <TouchableOpacity style={styles.selectButton}>
                 <Text style={styles.selectButtonText}>Seleccionar</Text>
@@ -168,7 +167,7 @@ const styles = StyleSheet.create({
   },
   headerIcon: {
     fontSize: 24,
-    color: COLORS.primary,
+    color: COLORS.textPrimary,
   },
   container: {
     flex: 1,
@@ -176,8 +175,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: FONTS.hero,
-    fontWeight: FONTS.bold,
-    color: COLORS.primary, // Dark blue from mockups
+    fontWeight: FONTS.heavy,
+    color: COLORS.textPrimary,
   },
   subtitle: {
     fontSize: FONTS.md,
@@ -185,12 +184,11 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   filterCard: {
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: COLORS.buttonOutline,
-    padding: SPACING.md,
+    padding: SPACING.lg,
     marginBottom: SPACING.xl,
+    ...SHADOWS.card,
   },
   filterHeaderRow: {
     flexDirection: 'row',
@@ -205,10 +203,10 @@ const styles = StyleSheet.create({
   filterTitle: {
     fontSize: FONTS.lg,
     fontWeight: FONTS.bold,
-    color: COLORS.primary,
+    color: COLORS.textPrimary,
   },
   clearFilters: {
-    color: COLORS.successGreen,
+    color: COLORS.accentDark,
     fontWeight: FONTS.bold,
   },
   inputRow: {
@@ -230,11 +228,11 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.buttonOutline,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
     borderRadius: RADIUS.sm,
     paddingHorizontal: SPACING.sm,
-    height: 40,
+    height: 42,
   },
   inputIcon: {
     marginRight: 4,
@@ -255,31 +253,30 @@ const styles = StyleSheet.create({
   },
   swapIcon: {
     fontSize: 18,
-    color: COLORS.textPrimary,
+    color: COLORS.accentDark,
   },
   searchButton: {
-    backgroundColor: COLORS.primary, // Use dark blue for primary action here
     marginTop: SPACING.sm,
   },
   listTitle: {
-    fontSize: FONTS.lg,
-    fontWeight: FONTS.bold,
-    color: COLORS.primary,
+    fontSize: FONTS.xl,
+    fontWeight: FONTS.heavy,
+    color: COLORS.textPrimary,
     marginBottom: SPACING.md,
   },
   tripCard: {
     flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: COLORS.buttonOutline,
+    backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
-    padding: SPACING.md,
+    padding: SPACING.lg,
     marginBottom: SPACING.md,
+    ...SHADOWS.card,
   },
   tripLeft: {
     flex: 1,
     flexDirection: 'row',
     borderRightWidth: 1,
-    borderRightColor: COLORS.buttonOutline,
+    borderRightColor: COLORS.border,
     paddingRight: SPACING.sm,
   },
   timeline: {
@@ -287,18 +284,24 @@ const styles = StyleSheet.create({
     marginRight: SPACING.sm,
     paddingVertical: 4,
   },
+  dotFilled: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: COLORS.accent,
+  },
   dotEmpty: {
     width: 12,
     height: 12,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: COLORS.successGreen,
+    borderColor: COLORS.textPrimary,
     backgroundColor: COLORS.background,
   },
   line: {
     width: 2,
     height: 30,
-    backgroundColor: COLORS.successGreen,
+    backgroundColor: COLORS.accent,
   },
   locations: {
     justifyContent: 'space-between',
@@ -307,7 +310,7 @@ const styles = StyleSheet.create({
   locationTextBold: {
     fontSize: FONTS.md,
     fontWeight: FONTS.bold,
-    color: COLORS.primary,
+    color: COLORS.textPrimary,
   },
   tripRight: {
     flex: 1,
@@ -320,9 +323,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   selectButton: {
-    backgroundColor: '#A8E6CF', // Light green
+    backgroundColor: COLORS.buttonPrimary,
     borderRadius: RADIUS.sm,
-    paddingVertical: 6,
+    paddingVertical: 8,
     alignItems: 'center',
     alignSelf: 'flex-end',
     paddingHorizontal: SPACING.lg,
@@ -330,7 +333,7 @@ const styles = StyleSheet.create({
   selectButtonText: {
     fontSize: FONTS.sm,
     fontWeight: FONTS.bold,
-    color: COLORS.textPrimary,
+    color: COLORS.buttonPrimaryText,
   },
 });
 

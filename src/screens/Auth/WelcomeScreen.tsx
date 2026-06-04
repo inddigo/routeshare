@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: RADIUS.circle,
     borderWidth: 3,
-    borderColor: COLORS.accentGreen,
-    backgroundColor: 'rgba(46, 196, 182, 0.1)',
+    borderColor: COLORS.accent,
+    backgroundColor: 'rgba(31, 201, 183, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: SPACING.lg,
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   logoLabel: {
     fontSize: FONTS.xl,
     fontWeight: FONTS.bold,
-    color: COLORS.accentGreen,
+    color: COLORS.accent,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.section,
   },
   registerButton: {
-    backgroundColor: COLORS.accentGreen,
+    backgroundColor: COLORS.accent,
     paddingVertical: SPACING.lg,
     borderRadius: RADIUS.pill,
     alignItems: 'center',
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   registerButtonText: {
     fontSize: FONTS.xl,
     fontWeight: FONTS.bold,
-    color: COLORS.textWhite,
+    color: COLORS.darkBackground,
   },
   loginButton: {
     backgroundColor: 'transparent',
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   footerLink: {
-    color: COLORS.accentGreen,
+    color: COLORS.accent,
     textDecorationLine: 'underline',
   },
 });

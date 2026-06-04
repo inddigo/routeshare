@@ -1,11 +1,11 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
-import { COLORS, FONTS, RADIUS, SPACING } from '../constants/theme';
+import { COLORS, FONTS, RADIUS, SPACING, SHADOWS } from '../constants/theme';
 
 interface CustomButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'outline' | 'text';
+  variant?: 'primary' | 'accent' | 'outline' | 'text';
   disabled?: boolean;
   loading?: boolean;
   style?: ViewStyle;
@@ -23,6 +23,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 }) => {
   const getContainerStyle = () => {
     switch (variant) {
+      case 'accent':
+        return styles.accentContainer;
       case 'outline':
         return styles.outlineContainer;
       case 'text':
@@ -34,6 +36,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 
   const getTextStyle = () => {
     switch (variant) {
+      case 'accent':
+        return styles.accentText;
       case 'outline':
         return styles.outlineText;
       case 'text':
@@ -43,20 +47,24 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     }
   };
 
+  const spinnerColor =
+    variant === 'primary' ? COLORS.textWhite : COLORS.textPrimary;
+
   return (
     <TouchableOpacity
       style={[
         styles.container,
         getContainerStyle(),
+        variant !== 'text' && variant !== 'outline' && SHADOWS.subtle,
         disabled && styles.disabledContainer,
         style,
       ]}
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.8}
+      activeOpacity={0.85}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? COLORS.textWhite : COLORS.textPrimary} />
+        <ActivityIndicator color={spinnerColor} />
       ) : (
         <Text style={[styles.text, getTextStyle(), textStyle]}>
           {title}
@@ -69,8 +77,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 52,
-    borderRadius: RADIUS.md, // Soft rounded borders based on mockups
+    height: 54,
+    borderRadius: RADIUS.md,
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: SPACING.sm,
@@ -78,9 +86,12 @@ const styles = StyleSheet.create({
   primaryContainer: {
     backgroundColor: COLORS.buttonPrimary,
   },
+  accentContainer: {
+    backgroundColor: COLORS.buttonAccent,
+  },
   outlineContainer: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORS.buttonOutline,
   },
   textContainer: {
@@ -89,20 +100,24 @@ const styles = StyleSheet.create({
     marginVertical: SPACING.xs,
   },
   disabledContainer: {
-    opacity: 0.6,
+    opacity: 0.45,
   },
   text: {
     fontSize: FONTS.lg,
-    fontWeight: FONTS.medium,
+    fontWeight: FONTS.bold,
+    letterSpacing: 0.2,
   },
   primaryText: {
     color: COLORS.buttonPrimaryText,
+  },
+  accentText: {
+    color: COLORS.buttonAccentText,
   },
   outlineText: {
     color: COLORS.buttonOutlineText,
   },
   textVariantText: {
-    color: COLORS.textPrimary,
+    color: COLORS.accentDark,
   },
 });
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, FONTS, SPACING } from '../constants/theme';
+import { COLORS, FONTS, SPACING, RADIUS } from '../constants/theme';
 
 interface HeaderProps {
   title?: string;
@@ -14,15 +14,18 @@ const Header: React.FC<HeaderProps> = ({ title, showBack = true }) => {
   return (
     <View style={styles.container}>
       {showBack ? (
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          {/* Arrow Icon Placeholder */}
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.7}
+        >
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
       ) : (
         <View style={styles.placeholder} />
       )}
       <View style={styles.titleContainer}>
-        {title && <Text style={styles.title}>{title}</Text>}
+        {title && <Text style={styles.title} numberOfLines={1}>{title}</Text>}
       </View>
       <View style={styles.placeholder} />
     </View>
@@ -33,21 +36,22 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 56,
-    paddingHorizontal: SPACING.md,
+    height: 60,
+    paddingHorizontal: SPACING.lg,
     backgroundColor: COLORS.background,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.inputBackground,
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.lightGrey,
     justifyContent: 'center',
     alignItems: 'center',
   },
   backText: {
-    fontSize: 24,
+    fontSize: 22,
     color: COLORS.textPrimary,
+    fontWeight: FONTS.bold,
   },
   titleContainer: {
     flex: 1,
@@ -55,11 +59,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: FONTS.xl,
-    fontWeight: FONTS.bold,
+    fontWeight: FONTS.heavy,
     color: COLORS.textPrimary,
+    letterSpacing: 0.2,
   },
   placeholder: {
-    width: 40,
+    width: 44,
   },
 });
 

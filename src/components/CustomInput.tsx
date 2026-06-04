@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, TextInputProps, TouchableOpacity } from 'react-native';
 import { COLORS, FONTS, RADIUS, SPACING } from '../constants/theme';
 
@@ -15,15 +15,34 @@ const CustomInput: React.FC<CustomInputProps> = ({
   onRightIconPress,
   error,
   style,
+  onFocus,
+  onBlur,
   ...props
 }) => {
+  const [focused, setFocused] = useState(false);
+
   return (
     <View style={styles.wrapper}>
-      <View style={[styles.container, error ? styles.errorContainer : null, style]}>
+      <View
+        style={[
+          styles.container,
+          focused && styles.focusedContainer,
+          error ? styles.errorContainer : null,
+          style,
+        ]}
+      >
         {icon && <View style={styles.iconContainer}>{icon}</View>}
         <TextInput
           style={styles.input}
           placeholderTextColor={COLORS.textMuted}
+          onFocus={(e) => {
+            setFocused(true);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            onBlur?.(e);
+          }}
           {...props}
         />
         {rightIcon && (
@@ -45,12 +64,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.inputBackground,
-    borderRadius: RADIUS.pill, // Fully rounded (pill) shape as in mockups
+    borderRadius: RADIUS.md,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
     height: 56,
     paddingHorizontal: SPACING.lg,
   },
+  focusedContainer: {
+    borderColor: COLORS.accent,
+    backgroundColor: COLORS.background,
+  },
   errorContainer: {
-    borderWidth: 1,
     borderColor: COLORS.danger,
   },
   input: {

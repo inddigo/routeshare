@@ -38,6 +38,16 @@ export const COLORS = {
   buttonAccentText: '#0A0A0A',
   buttonOutline: '#E5E5E7',         // Borde de botón outline
   buttonOutlineText: '#0A0A0A',
+  buttonDisabled: '#C9C9CF',        // Botón deshabilitado
+
+  // --- Alias de compatibilidad usados por pantallas existentes ---
+  // Se mapean a la nueva identidad para evitar tokens inexistentes.
+  darkBlueHeader: '#0A0A0A',        // Header oscuro (antes azul) -> negro Uber
+  primaryBlue: '#0A0A0A',           // Antes azul corporativo -> negro marca
+  lightBackground: '#F4F4F5',       // Fondo claro de pantallas
+  cardBackground: '#FFFFFF',        // Fondo de tarjetas
+  textLink: '#149C8E',              // Enlaces -> turquesa oscuro
+  statusConfirmed: '#1FC9B7',       // Estado confirmado -> acento turquesa
 };
 
 export const FONTS = {

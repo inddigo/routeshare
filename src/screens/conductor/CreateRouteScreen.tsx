@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput,
 import { supabase } from '../../services/supabase';
 import { PUCV_GEOFENCES } from '../../constants/geofences';
 import { COMMON_DESTINATIONS } from '../../services/searchService';
+import { COLORS, FONTS, SPACING, RADIUS } from '../../constants/theme';
 
 // Fallback lat/lng for destinations
 const DESTINATION_COORDS: {[key: string]: {lat: number, lng: number}} = {
@@ -144,7 +145,7 @@ const CreateRouteScreen = ({ navigation }: any) => {
       </View>
 
       <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitBtnText}>Publicar Viaje</Text>}
+        {loading ? <ActivityIndicator color={COLORS.buttonPrimaryText} /> : <Text style={styles.submitBtnText}>Publicar Viaje</Text>}
       </TouchableOpacity>
       
       <View style={{height: 40}} />
@@ -153,21 +154,21 @@ const CreateRouteScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 16 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#00529b', marginBottom: 24 },
-  section: { marginBottom: 20 },
-  label: { fontSize: 14, fontWeight: 'bold', color: '#333', marginBottom: 8 },
+  container: { flex: 1, backgroundColor: COLORS.background, padding: SPACING.lg },
+  title: { fontSize: FONTS.hero, fontWeight: FONTS.heavy, color: COLORS.textPrimary, marginBottom: SPACING.xxl },
+  section: { marginBottom: SPACING.xl },
+  label: { fontSize: FONTS.md, fontWeight: FONTS.bold, color: COLORS.textPrimary, marginBottom: SPACING.sm },
   chipScroll: { flexDirection: 'row' },
-  chip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: '#f0f0f0', marginRight: 10, borderWidth: 1, borderColor: '#e0e0e0' },
-  chipActive: { backgroundColor: '#e6f0fa', borderColor: '#00529b' },
-  chipText: { fontSize: 14, color: '#666' },
-  chipTextActive: { color: '#00529b', fontWeight: 'bold' },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
+  chip: { paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md, borderRadius: RADIUS.pill, backgroundColor: COLORS.lightGrey, marginRight: SPACING.md, borderWidth: 1.5, borderColor: COLORS.border },
+  chipActive: { backgroundColor: COLORS.statusBadgeGreen, borderColor: COLORS.accent },
+  chipText: { fontSize: FONTS.md, color: COLORS.textSecondary },
+  chipTextActive: { color: COLORS.accentDark, fontWeight: FONTS.bold },
+  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: SPACING.lg },
   half: { width: '48%' },
-  input: { backgroundColor: '#f9f9f9', borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 8, padding: 12 },
-  helper: { fontSize: 11, color: '#999', marginTop: 4 },
-  submitBtn: { backgroundColor: '#00529b', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 10 },
-  submitBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  input: { backgroundColor: COLORS.inputBackground, borderWidth: 1.5, borderColor: COLORS.border, borderRadius: RADIUS.md, padding: SPACING.md, color: COLORS.textPrimary },
+  helper: { fontSize: FONTS.xs, color: COLORS.textMuted, marginTop: SPACING.xs },
+  submitBtn: { backgroundColor: COLORS.buttonPrimary, padding: SPACING.lg, borderRadius: RADIUS.md, alignItems: 'center', marginTop: SPACING.md },
+  submitBtnText: { color: COLORS.buttonPrimaryText, fontSize: FONTS.lg, fontWeight: FONTS.bold }
 });
 
 export default React.memo(CreateRouteScreen);

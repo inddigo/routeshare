@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Alert, ActivityIndicator } from 'react-native';
 import { supabase } from '../../services/supabase';
 import { driverService } from '../../services/driverService';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../constants/theme';
 
 const PinValidationScreen = () => {
   const [pasajeros, setPasajeros] = useState<any[]>([]);
@@ -87,7 +88,7 @@ const PinValidationScreen = () => {
       <Text style={styles.instruction}>Solicita el PIN de 3 dígitos a tus pasajeros cuando aborden el vehículo.</Text>
       
       {loading ? (
-        <ActivityIndicator size="large" color="#00529b" />
+        <ActivityIndicator size="large" color={COLORS.accent} />
       ) : (
         <FlatList
           data={pasajeros}
@@ -101,19 +102,19 @@ const PinValidationScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', padding: 16 },
-  instruction: { fontSize: 14, color: '#666', marginBottom: 20, textAlign: 'center', paddingHorizontal: 20 },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', elevation: 1 },
+  container: { flex: 1, backgroundColor: COLORS.lightGrey, padding: SPACING.lg },
+  instruction: { fontSize: FONTS.md, color: COLORS.textSecondary, marginBottom: SPACING.xl, textAlign: 'center', paddingHorizontal: SPACING.xl },
+  card: { backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: SPACING.lg, marginBottom: SPACING.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', ...SHADOWS.card },
   infoCol: { flex: 1 },
-  name: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-  viaje: { fontSize: 12, color: '#999', marginTop: 4 },
-  inputCol: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  pinInput: { backgroundColor: '#f0f0f0', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, width: 60, textAlign: 'center', fontSize: 16, fontWeight: 'bold', letterSpacing: 2 },
-  validateBtn: { backgroundColor: '#00529b', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 },
-  validateText: { color: '#fff', fontWeight: 'bold' },
-  okBadge: { backgroundColor: '#e8f5e9', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: '#c8e6c9' },
-  okText: { color: '#2e7d32', fontWeight: 'bold' },
-  empty: { textAlign: 'center', marginTop: 40, color: '#999' }
+  name: { fontSize: FONTS.lg, fontWeight: FONTS.bold, color: COLORS.textPrimary },
+  viaje: { fontSize: FONTS.xs, color: COLORS.textMuted, marginTop: SPACING.xs },
+  inputCol: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
+  pinInput: { backgroundColor: COLORS.inputBackground, borderRadius: RADIUS.sm, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, width: 60, textAlign: 'center', fontSize: FONTS.lg, fontWeight: FONTS.bold, letterSpacing: 2, borderWidth: 1.5, borderColor: COLORS.border },
+  validateBtn: { backgroundColor: COLORS.buttonPrimary, paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md, borderRadius: RADIUS.sm },
+  validateText: { color: COLORS.buttonPrimaryText, fontWeight: FONTS.bold },
+  okBadge: { backgroundColor: COLORS.statusBadgeGreen, paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm, borderRadius: RADIUS.sm },
+  okText: { color: COLORS.statusTextGreen, fontWeight: FONTS.bold },
+  empty: { textAlign: 'center', marginTop: SPACING.section, color: COLORS.textMuted }
 });
 
 export default React.memo(PinValidationScreen);

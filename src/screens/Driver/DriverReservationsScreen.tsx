@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { supabase } from '../../services/supabase';
 import { driverService } from '../../services/driverService';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../constants/theme';
 
 const DriverReservationsScreen = () => {
   const [reservas, setReservas] = useState<any[]>([]);
@@ -80,7 +81,7 @@ const DriverReservationsScreen = () => {
         
         <View style={styles.statusRow}>
           <Text style={styles.statusLabel}>Estado:</Text>
-          <Text style={[styles.statusValue, !isPending && { color: '#2e7d32' }]}>{item.estado.toUpperCase()}</Text>
+          <Text style={[styles.statusValue, !isPending && { color: COLORS.successGreen }]}>{item.estado.toUpperCase()}</Text>
         </View>
 
         {isPending && (
@@ -100,7 +101,7 @@ const DriverReservationsScreen = () => {
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator size="large" color="#00529b" style={{marginTop: 20}} />
+        <ActivityIndicator size="large" color={COLORS.accent} style={{marginTop: 20}} />
       ) : (
         <FlatList
           data={reservas}
@@ -115,24 +116,24 @@ const DriverReservationsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  list: { padding: 16 },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, elevation: 2 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  pasajeroName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-  ratingBadge: { backgroundColor: '#fff3e0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
-  ratingText: { color: '#f57c00', fontSize: 12, fontWeight: 'bold' },
-  viajeText: { fontSize: 14, color: '#666', marginBottom: 12 },
-  statusRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  statusLabel: { fontSize: 13, color: '#999', marginRight: 8 },
-  statusValue: { fontSize: 13, fontWeight: 'bold', color: '#f57c00' },
-  actionRow: { flexDirection: 'row', gap: 12 },
-  actionBtn: { flex: 1, padding: 12, borderRadius: 8, alignItems: 'center', borderWidth: 1 },
-  rejectBtn: { borderColor: '#d32f2f', backgroundColor: '#fff' },
-  rejectText: { color: '#d32f2f', fontWeight: 'bold' },
-  acceptBtn: { borderColor: '#2e7d32', backgroundColor: '#2e7d32' },
-  acceptText: { color: '#fff', fontWeight: 'bold' },
-  empty: { textAlign: 'center', marginTop: 40, color: '#999' }
+  container: { flex: 1, backgroundColor: COLORS.lightGrey },
+  list: { padding: SPACING.lg },
+  card: { backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: SPACING.lg, marginBottom: SPACING.md, ...SHADOWS.card },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md },
+  pasajeroName: { fontSize: FONTS.lg, fontWeight: FONTS.bold, color: COLORS.textPrimary },
+  ratingBadge: { backgroundColor: 'rgba(245, 166, 35, 0.15)', paddingHorizontal: SPACING.sm, paddingVertical: SPACING.xs, borderRadius: RADIUS.pill },
+  ratingText: { color: COLORS.warning, fontSize: FONTS.xs, fontWeight: FONTS.bold },
+  viajeText: { fontSize: FONTS.md, color: COLORS.textSecondary, marginBottom: SPACING.md },
+  statusRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.lg, paddingBottom: SPACING.lg, borderBottomWidth: 1, borderBottomColor: COLORS.divider },
+  statusLabel: { fontSize: FONTS.sm, color: COLORS.textMuted, marginRight: SPACING.sm },
+  statusValue: { fontSize: FONTS.sm, fontWeight: FONTS.bold, color: COLORS.warning },
+  actionRow: { flexDirection: 'row', gap: SPACING.md },
+  actionBtn: { flex: 1, padding: SPACING.md, borderRadius: RADIUS.md, alignItems: 'center', borderWidth: 1.5 },
+  rejectBtn: { borderColor: COLORS.danger, backgroundColor: COLORS.surface },
+  rejectText: { color: COLORS.danger, fontWeight: FONTS.bold },
+  acceptBtn: { borderColor: COLORS.buttonPrimary, backgroundColor: COLORS.buttonPrimary },
+  acceptText: { color: COLORS.buttonPrimaryText, fontWeight: FONTS.bold },
+  empty: { textAlign: 'center', marginTop: SPACING.section, color: COLORS.textMuted }
 });
 
 export default React.memo(DriverReservationsScreen);

@@ -82,9 +82,10 @@ export const validatePUCVEmail = (email: string): boolean => {
 };
 
 /**
- * Genera un PIN numérico aleatorio de 3 dígitos (100-999).
+ * Genera un PIN numérico aleatorio de 4 dígitos (1000-9999).
+ * Se aumentó de 3 a 4 dígitos para reducir el riesgo de adivinanza/fuerza bruta.
  */
 export const generatePin = (): string => {
-  const pin = Math.floor(Math.random() * 900) + 100;
+  const pin = Math.floor(Math.random() * 9000) + 1000;
   return pin.toString();
 };

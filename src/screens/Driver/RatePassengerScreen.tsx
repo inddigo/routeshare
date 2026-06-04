@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { supabase } from '../../services/supabase';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../constants/theme';
 
 const RatePassengerScreen = ({ route, navigation }: any) => {
   const { viajeId } = route.params;
@@ -77,7 +78,7 @@ const RatePassengerScreen = ({ route, navigation }: any) => {
     );
   };
 
-  if (loading) return <ActivityIndicator size="large" color="#00529b" style={{marginTop: 40}} />;
+  if (loading) return <ActivityIndicator size="large" color={COLORS.accent} style={{marginTop: 40}} />;
 
   return (
     <View style={styles.container}>
@@ -100,18 +101,18 @@ const RatePassengerScreen = ({ route, navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', padding: 16 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#333', marginBottom: 8 },
-  subtitle: { fontSize: 14, color: '#666', marginBottom: 20 },
-  list: { paddingBottom: 20 },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, elevation: 1 },
-  name: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 12 },
+  container: { flex: 1, backgroundColor: COLORS.lightGrey, padding: SPACING.lg },
+  title: { fontSize: FONTS.xxl, fontWeight: FONTS.heavy, color: COLORS.textPrimary, marginBottom: SPACING.sm },
+  subtitle: { fontSize: FONTS.md, color: COLORS.textSecondary, marginBottom: SPACING.xl },
+  list: { paddingBottom: SPACING.xl },
+  card: { backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: SPACING.lg, marginBottom: SPACING.md, ...SHADOWS.card },
+  name: { fontSize: FONTS.lg, fontWeight: FONTS.bold, color: COLORS.textPrimary, marginBottom: SPACING.md },
   starsRow: { flexDirection: 'row' },
-  star: { fontSize: 32, color: '#e0e0e0', marginRight: 8 },
-  starFilled: { color: '#f5a623' },
-  btn: { backgroundColor: '#00529b', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 'auto' },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  empty: { textAlign: 'center', color: '#999', marginTop: 40 }
+  star: { fontSize: 32, color: COLORS.border, marginRight: SPACING.sm },
+  starFilled: { color: COLORS.warning },
+  btn: { backgroundColor: COLORS.buttonPrimary, padding: SPACING.lg, borderRadius: RADIUS.md, alignItems: 'center', marginTop: 'auto' },
+  btnText: { color: COLORS.buttonPrimaryText, fontWeight: FONTS.bold, fontSize: FONTS.lg },
+  empty: { textAlign: 'center', color: COLORS.textMuted, marginTop: SPACING.section }
 });
 
 export default React.memo(RatePassengerScreen);

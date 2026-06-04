@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { supabase } from '../../services/supabase';
 import { driverService } from '../../services/driverService';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../constants/theme';
 
 const ActiveTripDriverScreen = ({ navigation }: any) => {
   const [viaje, setViaje] = useState<any>(null);
@@ -66,7 +67,7 @@ const ActiveTripDriverScreen = ({ navigation }: any) => {
     );
   };
 
-  if (loading) return <ActivityIndicator size="large" color="#00529b" style={styles.loader} />;
+  if (loading) return <ActivityIndicator size="large" color={COLORS.accent} style={styles.loader} />;
 
   if (!viaje) {
     return (
@@ -118,24 +119,24 @@ const ActiveTripDriverScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', padding: 16 },
+  container: { flex: 1, backgroundColor: COLORS.lightGrey, padding: SPACING.lg },
   loader: { flex: 1, justifyContent: 'center' },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  emptyIcon: { fontSize: 48, marginBottom: 16 },
-  emptyText: { fontSize: 16, color: '#666', textAlign: 'center' },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 20, elevation: 2 },
-  headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#00529b', marginBottom: 4 },
-  statusText: { fontSize: 14, color: '#f57c00', fontWeight: 'bold', marginBottom: 16 },
-  divider: { height: 1, backgroundColor: '#e0e0e0', marginBottom: 16 },
-  infoLabel: { fontSize: 13, color: '#999', marginBottom: 4 },
-  infoValue: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 16 },
-  actionsContainer: { marginTop: 30 },
-  btn: { padding: 18, borderRadius: 12, alignItems: 'center' },
-  startBtn: { backgroundColor: '#00529b' },
-  finishBtn: { backgroundColor: '#d32f2f' },
-  btnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  infoBox: { marginTop: 30, backgroundColor: '#e8f4fd', padding: 16, borderRadius: 8 },
-  infoText: { color: '#00529b', textAlign: 'center', lineHeight: 20 }
+  emptyIcon: { fontSize: 48, marginBottom: SPACING.lg },
+  emptyText: { fontSize: FONTS.lg, color: COLORS.textSecondary, textAlign: 'center' },
+  card: { backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: SPACING.xl, ...SHADOWS.card },
+  headerTitle: { fontSize: FONTS.xxl, fontWeight: FONTS.heavy, color: COLORS.textPrimary, marginBottom: SPACING.xs },
+  statusText: { fontSize: FONTS.md, color: COLORS.warning, fontWeight: FONTS.bold, marginBottom: SPACING.lg },
+  divider: { height: 1, backgroundColor: COLORS.divider, marginBottom: SPACING.lg },
+  infoLabel: { fontSize: FONTS.sm, color: COLORS.textMuted, marginBottom: SPACING.xs },
+  infoValue: { fontSize: FONTS.lg, fontWeight: FONTS.bold, color: COLORS.textPrimary, marginBottom: SPACING.lg },
+  actionsContainer: { marginTop: SPACING.xxxl },
+  btn: { padding: SPACING.lg, borderRadius: RADIUS.md, alignItems: 'center' },
+  startBtn: { backgroundColor: COLORS.buttonPrimary },
+  finishBtn: { backgroundColor: COLORS.danger },
+  btnText: { color: COLORS.textWhite, fontSize: FONTS.lg, fontWeight: FONTS.bold },
+  infoBox: { marginTop: SPACING.xxxl, backgroundColor: COLORS.statusBadgeGreen, padding: SPACING.lg, borderRadius: RADIUS.md },
+  infoText: { color: COLORS.accentDark, textAlign: 'center', lineHeight: 20 }
 });
 
 export default React.memo(ActiveTripDriverScreen);

@@ -51,6 +51,7 @@ export const COLORS = {
   divider: '#EDEDF0',              // Líneas divisorias
   statusBadgeGreen: 'rgba(31, 201, 183, 0.15)', // Fondo de badge -> turquesa suave
   statusTextGreen: '#149C8E',     // Texto de badge -> turquesa oscuro
+  progressGreen: '#1FC9B7',       // Barra de progreso -> acento turquesa
 };
 
 export const FONTS = {

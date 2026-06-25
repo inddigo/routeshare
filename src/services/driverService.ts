@@ -2,18 +2,22 @@
 import { supabase } from './supabase';
 import { escrowService } from './escrowService';
 
+// Columnas de Booking legibles por el cliente (boarding_pin y pin_attempts
+// están restringidas por grants; ver database/migrations/01_pin_seguro.sql).
+const BOOKING_COLS = 'id, trip_id, passenger_id, status, payment_status';
+
 export const driverService = {
   registerDriver: async (userId: string, licenciaUrl: string, hojaVidaUrl: string) => {
     try {
       const { data, error } = await supabase
-        .from('conductores')
-        .insert([{
-          usuario_id: userId,
-          licencia_url: licenciaUrl,
-          hoja_vida_url: hojaVidaUrl,
-          estado_aprobacion: 'pendiente'
-        }])
-        .select()
+        .from('User')
+        .update({
+          role: 'DRIVER',
+          license_url: licenciaUrl,
+          cv_url: hojaVidaUrl,
+        })
+        .eq('id', userId)
+        .select('id, role, license_url, cv_url')
         .single();
 
       if (error) throw error;
@@ -27,13 +31,13 @@ export const driverService = {
   registerVehicle: async (conductorId: string, patente: string, modelo: string, capacidad: number, padronUrl: string) => {
     try {
       const { data, error } = await supabase
-        .from('vehiculos')
+        .from('Vehicle')
         .insert([{
-          conductor_id: conductorId,
-          patente,
-          modelo,
-          capacidad,
-          padron_url: padronUrl
+          driver_id: conductorId,
+          license_plate: patente,
+          make_model: modelo,
+          capacity: capacidad,
+          registration_doc_url: padronUrl,
         }])
         .select()
         .single();
@@ -48,12 +52,15 @@ export const driverService = {
 
   getDriverStatus: async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('conductores')
-        .select('*')
-        .eq('usuario_id', userId)
+      const { data } = await supabase
+        .from('User')
+        .select(`
+          id, role, license_url, cv_url,
+          Vehicle (id, license_plate, make_model, capacity, verification_status)
+        `)
+        .eq('id', userId)
         .single();
-      
+
       return { success: true, data };
     } catch (error: any) {
       return { success: false, error: error.message };
@@ -62,27 +69,16 @@ export const driverService = {
 
   getDriverReservations: async (conductorId: string) => {
     try {
-      // Necesitamos unir reservas -> viajes -> conductores
-      const { data: viajes, error: viajesError } = await supabase
-        .from('viajes')
-        .select('id')
-        .eq('conductor_id', conductorId);
-
-      if (viajesError) throw viajesError;
-      if (!viajes || viajes.length === 0) return { success: true, data: [] };
-
-      const viajeIds = viajes.map(v => v.id);
-
+      // Reservas de los viajes del conductor (join Booking -> Trip).
       const { data, error } = await supabase
-        .from('reservas')
+        .from('Booking')
         .select(`
-          *,
-          usuarios!reservas_pasajero_id_fkey (nombre, apellido_paterno, reputacion_promedio),
-          viajes (*, rutas (*))
+          ${BOOKING_COLS},
+          Passenger:User!Booking_passenger_id_fkey (full_name, avatar_url),
+          Trip!inner (*)
         `)
-        .in('viaje_id', viajeIds)
-        .in('estado', ['pendiente', 'confirmada'])
-        .order('created_at', { ascending: false });
+        .eq('Trip.driver_id', conductorId)
+        .in('status', ['REQUESTED', 'CONFIRMED']);
 
       if (error) throw error;
       return { success: true, data };
@@ -95,8 +91,8 @@ export const driverService = {
   acceptReservation: async (reservaId: string) => {
     try {
       const { error } = await supabase
-        .from('reservas')
-        .update({ estado: 'confirmada' })
+        .from('Booking')
+        .update({ status: 'CONFIRMED' })
         .eq('id', reservaId);
 
       if (error) throw error;
@@ -108,23 +104,23 @@ export const driverService = {
 
   rejectReservation: async (reservaId: string) => {
     try {
-      // Obtener el viaje_id para restaurar el asiento
+      // Obtener el trip_id para restaurar el asiento
       const { data: reserva } = await supabase
-        .from('reservas')
-        .select('viaje_id')
+        .from('Booking')
+        .select('trip_id')
         .eq('id', reservaId)
         .single();
 
       // Restaurar el asiento de forma atomica
       if (reserva) {
-        await supabase.rpc('liberar_asiento', { p_viaje_id: reserva.viaje_id });
+        await supabase.rpc('liberar_asiento', { p_viaje_id: reserva.trip_id });
       }
 
-      // Actualizar reserva y reembolsar pago
+      // Reembolsar pago y cancelar la reserva
       await escrowService.reembolsarPago(reservaId);
       await supabase
-        .from('reservas')
-        .update({ estado: 'rechazada' })
+        .from('Booking')
+        .update({ status: 'CANCELLED' })
         .eq('id', reservaId);
 
       return { success: true };
@@ -154,8 +150,8 @@ export const driverService = {
   startTrip: async (viajeId: string) => {
     try {
       const { error } = await supabase
-        .from('viajes')
-        .update({ estado: 'activo' })
+        .from('Trip')
+        .update({ status: 'IN_PROGRESS' })
         .eq('id', viajeId);
 
       if (error) throw error;
@@ -168,18 +164,18 @@ export const driverService = {
   finishTrip: async (viajeId: string) => {
     try {
       const { error } = await supabase
-        .from('viajes')
-        .update({ estado: 'completado' })
+        .from('Trip')
+        .update({ status: 'COMPLETED' })
         .eq('id', viajeId);
 
       if (error) throw error;
 
-      // Liberar todos los pagos en escrow
+      // Liberar todos los pagos en escrow (RPC valida que el viaje esté COMPLETED)
       await escrowService.liberarPagosViaje(viajeId);
 
       return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message };
     }
-  }
+  },
 };

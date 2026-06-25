@@ -21,37 +21,43 @@ export const noShowService = {
     };
   },
 
-  // Procesar No-Show automático: cancelar reserva y reembolsar
+  // Procesar No-Show automático del conductor: cancelar reserva y reembolsar
   processNoShow: async (reservaId: string, viajeId: string) => {
     try {
-      // 1. Reembolsar el pago
+      // 1. Reembolsar el pago (escrow -> pasajero; el RPC actualiza payment_status)
       await escrowService.reembolsarPago(reservaId);
 
-      // 2. Actualizar la reserva
+      // 2. Cancelar la reserva
       await supabase
-        .from('reservas')
-        .update({ estado: 'cancelada', estado_pago: 'reembolsado' })
+        .from('Booking')
+        .update({ status: 'CANCELLED' })
         .eq('id', reservaId);
 
       // 3. Incrementar asientos disponibles (atomico)
       await supabase.rpc('liberar_asiento', { p_viaje_id: viajeId });
 
-      // 4. Crear reporte automático
+      // 4. Crear reporte automático: el pasajero reporta al conductor
       const { data: reserva } = await supabase
-        .from('reservas')
-        .select('pasajero_id')
+        .from('Booking')
+        .select('passenger_id')
         .eq('id', reservaId)
         .single();
 
-      if (reserva) {
+      const { data: viaje } = await supabase
+        .from('Trip')
+        .select('driver_id')
+        .eq('id', viajeId)
+        .single();
+
+      if (reserva && viaje) {
         await supabase
-          .from('reportes')
+          .from('Report')
           .insert([{
-            usuario_id: reserva.pasajero_id,
-            viaje_id: viajeId,
-            tipo: 'no_show',
-            descripcion: 'Cancelación automática por inasistencia del conductor (10 minutos).',
-            estado: 'pendiente',
+            trip_id: viajeId,
+            reporter_id: reserva.passenger_id,
+            reported_user_id: viaje.driver_id,
+            type: 'no_show',
+            description: 'Cancelación automática por inasistencia del conductor (10 minutos).',
           }]);
       }
 
@@ -65,28 +71,37 @@ export const noShowService = {
   // Reportar no-show de un pasajero (desde el conductor)
   reportPassengerNoShow: async (reservaId: string, viajeId: string, conductorId: string) => {
     try {
-      // 1. Cancelar la reserva
+      // 1. Obtener el pasajero antes de tocar la reserva
+      const { data: reserva } = await supabase
+        .from('Booking')
+        .select('passenger_id')
+        .eq('id', reservaId)
+        .single();
+
+      // 2. Cancelar la reserva
       await supabase
-        .from('reservas')
-        .update({ estado: 'cancelada' })
+        .from('Booking')
+        .update({ status: 'CANCELLED' })
         .eq('id', reservaId);
 
-      // 2. Reembolsar el pago
+      // 3. Reembolsar el pago (no-op si no había retención)
       await escrowService.reembolsarPago(reservaId);
 
-      // 3. Incrementar asientos (atomico)
+      // 4. Incrementar asientos (atomico)
       await supabase.rpc('liberar_asiento', { p_viaje_id: viajeId });
 
-      // 4. Crear reporte
-      await supabase
-        .from('reportes')
-        .insert([{
-          usuario_id: conductorId,
-          viaje_id: viajeId,
-          tipo: 'no_show',
-          descripcion: 'Pasajero no se presentó en el punto de encuentro.',
-          estado: 'pendiente',
-        }]);
+      // 5. Crear reporte: el conductor reporta al pasajero
+      if (reserva) {
+        await supabase
+          .from('Report')
+          .insert([{
+            trip_id: viajeId,
+            reporter_id: conductorId,
+            reported_user_id: reserva.passenger_id,
+            type: 'no_show',
+            description: 'Pasajero no se presentó en el punto de encuentro.',
+          }]);
+      }
 
       return { success: true };
     } catch (error: any) {

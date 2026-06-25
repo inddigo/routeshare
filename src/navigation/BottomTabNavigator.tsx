@@ -1,107 +1,93 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
-import HomeScreen from '../screens/Main/HomeScreen';
-import ProfileScreen from '../screens/Profile/ProfileScreen';
+import { Home, Search, Car, User } from 'lucide-react-native';
 import { COLORS, FONTS } from '../constants/theme';
+import { Platform } from 'react-native';
+
+import HomeScreen from '../screens/HomeScreen';
+import SearchScreen from '../screens/SearchScreen';
+import TripsScreen from '../screens/TripsScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
+
+// Definidos fuera del componente para evitar que React los trate como un
+// tipo de componente nuevo en cada render (react/no-unstable-nested-components).
+const HomeIcon = ({ color }: { color: string }) => (
+  <Home color={color} size={22} strokeWidth={2.5} />
+);
+const SearchTabIcon = ({ color }: { color: string }) => (
+  <Search color={color} size={22} strokeWidth={2.5} />
+);
+const TripsIcon = ({ color }: { color: string }) => (
+  <Car color={color} size={22} strokeWidth={2.5} />
+);
+const ProfileIcon = ({ color }: { color: string }) => (
+  <User color={color} size={22} strokeWidth={2.5} />
+);
 
 export default function BottomTabNavigator() {
   return (
     <Tab.Navigator
-      initialRouteName="BuscarViaje"
-      screenOptions={({ route }) => ({
+      screenOptions={{
         headerShown: false,
-        tabBarIcon: ({ focused, size }) => {
-          let icon = '🏠';
-
-          if (route.name === 'BuscarViaje') icon = '🔍';
-          else if (route.name === 'MisViajes') icon = '🎫';
-          else if (route.name === 'Inicio') icon = '🏠';
-          else if (route.name === 'Mensajes') icon = '✉️';
-          else if (route.name === 'Perfil') icon = '👤';
-
-          return (
-            <View style={[styles.iconContainer, focused && styles.iconFocused]}>
-              <Text style={{ fontSize: size }}>{icon}</Text>
-            </View>
-          );
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.textSecondary,
+        tabBarStyle: {
+          backgroundColor: COLORS.background,
+          borderTopWidth: 1,
+          borderTopColor: COLORS.borderLight,
+          paddingTop: 8,
+          paddingBottom: Platform.OS === 'ios' ? 24 : 8,
+          height: Platform.OS === 'ios' ? 85 : 65,
+          elevation: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.05,
+          shadowRadius: 10,
         },
-        tabBarActiveTintColor: COLORS.textPrimary,
-        tabBarInactiveTintColor: COLORS.textMuted,
-        tabBarStyle: styles.tabBar,
-        tabBarLabelStyle: styles.tabBarLabel,
-      })}
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: FONTS.bold,
+          marginTop: 4,
+        },
+      }}
     >
       <Tab.Screen 
-        name="BuscarViaje" 
+        name="Home" 
         component={HomeScreen} 
-        options={{ title: 'Buscar viaje' }} 
-      />
-      <Tab.Screen 
-        name="MisViajes" 
-        component={HomeScreen} // Placeholder until screen is built
-        options={{ title: 'Mis viajes' }} 
-      />
-      <Tab.Screen 
-        name="Inicio" 
-        component={HomeScreen} // Placeholder
         options={{
-          title: 'Inicio',
-          tabBarIcon: ({ size }) => (
-            <View style={styles.centerButton}>
-              <Text style={{ fontSize: size, color: COLORS.textWhite }}>🏠</Text>
-            </View>
-          ),
+          tabBarLabel: 'Inicio',
+          tabBarIcon: HomeIcon,
         }} 
       />
+      
       <Tab.Screen 
-        name="Mensajes" 
-        component={HomeScreen} // Placeholder
-        options={{ title: 'Mensajes' }} 
+        name="Search" 
+        component={SearchScreen} 
+        options={{
+          tabBarLabel: 'Buscar Viaje',
+          tabBarIcon: SearchTabIcon,
+        }} 
       />
+
       <Tab.Screen 
-        name="Perfil" 
+        name="Trips" 
+        component={TripsScreen} 
+        options={{
+          tabBarLabel: 'Mis Viajes',
+          tabBarIcon: TripsIcon,
+        }} 
+      />
+
+      <Tab.Screen 
+        name="Profile" 
         component={ProfileScreen} 
-        options={{ title: 'Perfil' }} 
+        options={{
+          tabBarLabel: 'Perfil',
+          tabBarIcon: ProfileIcon,
+        }} 
       />
     </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: COLORS.background,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.buttonOutline,
-    height: 70,
-    paddingBottom: 10,
-    paddingTop: 10,
-  },
-  tabBarLabel: {
-    fontSize: 10,
-    fontWeight: FONTS.medium,
-  },
-  iconContainer: {
-    padding: 2,
-    opacity: 0.5,
-  },
-  iconFocused: {
-    opacity: 1,
-  },
-  centerButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: COLORS.primary, // The mockups show a dark blue center button for some roles, but passenger has dark blue active tab. We'll use primary color.
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: -20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  }
-});

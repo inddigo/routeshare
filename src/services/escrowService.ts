@@ -1,135 +1,55 @@
 // src/services/escrowService.ts
-// Servicio de pagos Escrow SIMULADO (sin pasarela real)
+// Escrow sobre Wallet + Booking.payment_status mediante RPCs SECURITY DEFINER.
+// El cliente NO puede escribir Wallet ni payment_status directamente
+// (RLS/grants): todo movimiento de dinero pasa por los RPCs, que validan
+// identidad con auth.uid() y usan el precio server-side del viaje.
+// Ver database/migrations/08_escrow_rpcs.sql
 import { supabase } from './supabase';
 
 const COMISION_PORCENTAJE = 0.07; // 7% comisión
 
 export const escrowService = {
-  // Retener fondos al confirmar reserva
-  retenerPago: async (reservaId: string, monto: number) => {
-    const { data, error } = await supabase
-      .from('pagos')
-      .insert([{
-        reserva_id: reservaId,
-        monto,
-        estado: 'retenido',
-        comision_porcentaje: COMISION_PORCENTAJE,
-      }])
-      .select()
-      .single();
-
+  // Retener fondos del pasajero al crear la reserva (available -> escrow).
+  retenerPago: async (reservaId: string) => {
+    const { error } = await supabase.rpc('retener_pago', {
+      p_reserva_id: reservaId,
+    });
     if (error) throw new Error(`Error reteniendo pago: ${error.message}`);
-
-    // Actualizar estado_pago en la reserva
-    await supabase
-      .from('reservas')
-      .update({ estado_pago: 'retenido' })
-      .eq('id', reservaId);
-
-    return data;
   },
 
-  // Liberar fondos al conductor tras confirmar llegada
-  liberarPago: async (pagoId: string) => {
-    const { data, error } = await supabase
-      .from('pagos')
-      .update({
-        estado: 'liberado',
-        fecha_liberacion: new Date().toISOString(),
-      })
-      .eq('id', pagoId)
-      .select()
-      .single();
-
-    if (error) throw new Error(`Error liberando pago: ${error.message}`);
-
-    // Actualizar estado_pago en la reserva
-    if (data?.reserva_id) {
-      await supabase
-        .from('reservas')
-        .update({ estado_pago: 'liberado' })
-        .eq('id', data.reserva_id);
-    }
-
-    return data;
-  },
-
-  // Liberar todos los pagos de un viaje al finalizarlo
+  // Liberar al conductor (menos comisión) todos los pagos retenidos del viaje.
+  // Solo funciona con el viaje COMPLETED. Devuelve la cantidad liberada.
   liberarPagosViaje: async (viajeId: string) => {
-    // Obtener todas las reservas confirmadas del viaje
-    const { data: reservas, error: resError } = await supabase
-      .from('reservas')
-      .select('id')
-      .eq('viaje_id', viajeId)
-      .eq('estado', 'confirmada');
-
-    if (resError) throw new Error(`Error obteniendo reservas: ${resError.message}`);
-
-    if (!reservas || reservas.length === 0) return [];
-
-    const reservaIds = reservas.map(r => r.id);
-
-    // Actualizar todos los pagos retenidos a liberados
-    const { data, error } = await supabase
-      .from('pagos')
-      .update({
-        estado: 'liberado',
-        fecha_liberacion: new Date().toISOString(),
-      })
-      .in('reserva_id', reservaIds)
-      .eq('estado', 'retenido')
-      .select();
-
+    const { data, error } = await supabase.rpc('liberar_pagos_viaje', {
+      p_viaje_id: viajeId,
+    });
     if (error) throw new Error(`Error liberando pagos: ${error.message}`);
-
-    // Actualizar estado_pago en reservas
-    await supabase
-      .from('reservas')
-      .update({ estado_pago: 'liberado' })
-      .in('id', reservaIds)
-      .eq('estado_pago', 'retenido');
-
     return data;
   },
 
-  // Reembolsar fondos al pasajero
+  // Reembolsar al pasajero (escrow -> available). Es no-op si no había retención.
   reembolsarPago: async (reservaId: string) => {
-    const { data, error } = await supabase
-      .from('pagos')
-      .update({
-        estado: 'reembolsado',
-        fecha_liberacion: new Date().toISOString(),
-      })
-      .eq('reserva_id', reservaId)
-      .eq('estado', 'retenido')
-      .select()
-      .single();
-
+    const { error } = await supabase.rpc('reembolsar_pago', {
+      p_reserva_id: reservaId,
+    });
     if (error) throw new Error(`Error reembolsando pago: ${error.message}`);
-
-    await supabase
-      .from('reservas')
-      .update({ estado_pago: 'reembolsado', estado: 'cancelada' })
-      .eq('id', reservaId);
-
-    return data;
   },
 
-  // Obtener estado de pago de una reserva
+  // Obtener estado de pago de una reserva.
   getEstadoPago: async (reservaId: string) => {
     const { data, error } = await supabase
-      .from('pagos')
-      .select('*')
-      .eq('reserva_id', reservaId)
+      .from('Booking')
+      .select('payment_status')
+      .eq('id', reservaId)
       .single();
 
     if (error) return null;
-    return data;
+    return data.payment_status;
   },
 
-  // Calcular monto neto para el conductor (monto - comisión), redondeado a
-  // 2 decimales para evitar arrastrar errores de punto flotante.
+  // Calcular monto neto para el conductor (monto - comisión). CLP es entero,
+  // sin decimales, igual que el cálculo del RPC liberar_pagos_viaje.
   calcularMontoNeto: (monto: number): number => {
-    return Math.round(monto * (1 - COMISION_PORCENTAJE) * 100) / 100;
+    return Math.round(monto * (1 - COMISION_PORCENTAJE));
   },
 };

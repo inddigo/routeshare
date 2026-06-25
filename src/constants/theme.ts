@@ -1,57 +1,43 @@
 // src/constants/theme.ts
-// RouteShare Design System
-// Identidad "Uber con personalidad propia":
-// base negra + blanco, acento turquesa distintivo de RouteShare.
+// RouteShare Design System - New UI Kit
+// Primary navy (#002855) + Gold (#FFB81C)
 
 export const COLORS = {
-  // Marca / acento (sello propio de RouteShare)
-  primary: '#0A0A0A',           // Negro Uber como color de marca principal
-  accent: '#1FC9B7',            // Turquesa RouteShare (sello distintivo)
-  accentGreen: '#1FC9B7',       // Alias compat: usado por pantallas existentes
-  accentDark: '#149C8E',        // Turquesa oscuro para estados activos/press
+  // Brand
+  primary: '#002855',           // Navy Blue
+  primaryDark: '#001D3D',
+  primaryLight: 'rgba(0, 40, 85, 0.1)',
+  
+  accent: '#FFB81C',            // Gold
+  accentHover: '#e5a519',
+  accentLight: 'rgba(255, 184, 28, 0.15)',
 
-  // Fondos
-  background: '#FFFFFF',        // Fondo claro principal
-  darkBackground: '#0A0A0A',   // Fondo oscuro (pantallas tipo Welcome/Onboarding)
-  surface: '#FFFFFF',          // Superficie de tarjetas sobre fondo claro
-  surfaceDark: '#161616',      // Superficie de tarjetas sobre fondo oscuro
-  lightGrey: '#F4F4F5',        // Fondos secundarios / secciones
-  inputBackground: '#F4F4F5',  // Relleno de inputs
-  border: '#E5E5E7',           // Bordes sutiles
-
-  // Texto
-  textPrimary: '#0A0A0A',      // Texto principal (casi negro)
-  textSecondary: '#5C5C66',    // Texto secundario
-  textMuted: '#9A9AA5',        // Placeholder / texto atenuado
+  // Backgrounds
+  background: '#FFFFFF',
+  surface: '#FFFFFF',
+  lightGrey: '#F5F5F5',
+  
+  // Text
+  textPrimary: '#1C1C1E',
+  textSecondary: '#8E8E93',
   textWhite: '#FFFFFF',
 
-  // Estados
-  successGreen: '#0E9F6E',
-  warning: '#F5A623',
-  danger: '#E53935',
+  // Borders
+  borderLight: '#F5F5F5',
+  border: '#E5E5E7',
+  borderGrey: '#d1d1d6',
 
-  // Botones
-  buttonPrimary: '#0A0A0A',         // Negro sólido (acción principal)
-  buttonPrimaryText: '#FFFFFF',
-  buttonActive: '#262626',          // Negro presionado
-  buttonAccent: '#1FC9B7',          // Acento turquesa para CTAs destacados
-  buttonAccentText: '#0A0A0A',
-  buttonOutline: '#E5E5E7',         // Borde de botón outline
-  buttonOutlineText: '#0A0A0A',
-  buttonDisabled: '#C9C9CF',        // Botón deshabilitado
+  // Status
+  successGreen: '#4CAF50',
+  successLight: 'rgba(76, 175, 80, 0.15)',
+  warningOrange: '#FFB81C',
+  dangerRed: '#D32F2F',
+  dangerLight: 'rgba(211, 47, 47, 0.05)',
+  infoBlue: '#002855',
 
-  // --- Alias de compatibilidad usados por pantallas existentes ---
-  // Se mapean a la nueva identidad para evitar tokens inexistentes.
-  darkBlueHeader: '#0A0A0A',        // Header oscuro (antes azul) -> negro Uber
-  primaryBlue: '#0A0A0A',           // Antes azul corporativo -> negro marca
-  lightBackground: '#F4F4F5',       // Fondo claro de pantallas
-  cardBackground: '#FFFFFF',        // Fondo de tarjetas
-  textLink: '#149C8E',              // Enlaces -> turquesa oscuro
-  statusConfirmed: '#1FC9B7',       // Estado confirmado -> acento turquesa
-  divider: '#EDEDF0',              // Líneas divisorias
-  statusBadgeGreen: 'rgba(31, 201, 183, 0.15)', // Fondo de badge -> turquesa suave
-  statusTextGreen: '#149C8E',     // Texto de badge -> turquesa oscuro
-  progressGreen: '#1FC9B7',       // Barra de progreso -> acento turquesa
+  // Component Specific
+  inputBackground: '#F5F5F5',
+  iconGrey: '#8E8E93',
 };
 
 export const FONTS = {
@@ -86,6 +72,7 @@ export const RADIUS = {
   md: 12,
   lg: 16,
   xl: 20,
+  xxl: 24,
   pill: 50,
   circle: 999,
 };
@@ -93,23 +80,30 @@ export const RADIUS = {
 export const SHADOWS = {
   subtle: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
+    shadowRadius: 8,
+    elevation: 2,
   },
   card: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowRadius: 16,
+    elevation: 4,
   },
   elevated: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
     elevation: 8,
   },
+  bottomSheet: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 30,
+    elevation: 16,
+  }
 };

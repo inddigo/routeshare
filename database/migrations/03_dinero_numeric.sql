@@ -1,14 +1,17 @@
 -- ============================================================================
 -- Migracion 03: Dinero con NUMERIC en vez de FLOAT (problema #6)
--- Ejecutar en el SQL Editor de Supabase.
+-- NO APLICABLE (verificado el 2026-06-10 contra la BD real).
+--
+-- El esquema real almacena el dinero como INTEGER en pesos chilenos:
+--   Trip.suggested_price_clp  INTEGER
+--   Wallet.available_balance  INTEGER
+--   Wallet.escrow_balance     INTEGER
+--
+-- El CLP no usa decimales, por lo que INTEGER es una representacion correcta
+-- y segura (sin errores de redondeo de punto flotante). No existen columnas
+-- FLOAT de dinero que convertir. Las unicas columnas FLOAT son lat/lng,
+-- donde float8 es apropiado.
+--
+-- Si en el futuro se agregan montos con decimales (otras monedas, comisiones
+-- porcentuales aplicadas), usar NUMERIC(10,2) / NUMERIC(5,4).
 -- ============================================================================
-
-ALTER TABLE public.reservas
-  ALTER COLUMN monto TYPE NUMERIC(10,2) USING monto::NUMERIC(10,2);
-
-ALTER TABLE public.pagos
-  ALTER COLUMN monto TYPE NUMERIC(10,2) USING monto::NUMERIC(10,2);
-
-ALTER TABLE public.pagos
-  ALTER COLUMN comision_porcentaje TYPE NUMERIC(5,4)
-  USING comision_porcentaje::NUMERIC(5,4);

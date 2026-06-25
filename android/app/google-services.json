@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "108483117030",
+    "project_id": "routeshare-9641b",
+    "storage_bucket": "routeshare-9641b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:108483117030:android:aacb96b2b87055acdd6027",
+        "android_client_info": {
+          "package_name": "com.routeshare"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXLjlQiHSFKangQ6RzO2L6Fh3-I_BWm8E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

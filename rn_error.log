@@ -1,0 +1,7 @@
+--------- beginning of main
+06-09 12:09:56.191  3375  3969 I ReactNativeJS: Running "RouteShare" with {"rootTag":1,"initialProps":{},"fabric":true}
+06-09 12:10:06.863  3375  3969 W ReactNativeJS: [AppNavigator] Timeout de 10000ms alcanzado
+06-09 12:10:31.065  3375  3969 E ReactNativeJS: 'Error buscando viajes:', { code: 'PGRST205',
+06-09 12:10:31.065  3375  3969 E ReactNativeJS:   details: null,
+06-09 12:10:31.065  3375  3969 E ReactNativeJS:   hint: null,
+06-09 12:10:31.065  3375  3969 E ReactNativeJS:   message: 'Could not find the table \'public.viajes\' in the schema cache' }

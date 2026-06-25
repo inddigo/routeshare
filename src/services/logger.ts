@@ -2,7 +2,6 @@
 // Logger con niveles. En producción (no __DEV__) se silencia para evitar
 // filtrar datos sensibles en los logs del dispositivo.
 
-/* eslint-disable no-console */
 const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
 
 export const logger = {

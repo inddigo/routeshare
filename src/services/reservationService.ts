@@ -4,8 +4,13 @@ import { escrowService } from './escrowService';
 import { generatePin } from './validationService';
 import { logger } from './logger';
 
+// Columnas de Booking legibles por el cliente (boarding_pin y pin_attempts
+// están restringidas por grants; el pasajero consulta su PIN con el RPC
+// obtener_pin_abordaje).
+const BOOKING_COLS = 'id, trip_id, passenger_id, status, payment_status';
+
 export const reservationService = {
-  createReservation: async (viajeId: string, pasajeroId: string, monto: number) => {
+  createReservation: async (viajeId: string, pasajeroId: string) => {
     try {
       // 1. Reservar asiento de forma atomica (evita condicion de carrera).
       const { data: reservado, error: asientoError } = await supabase.rpc(
@@ -22,16 +27,15 @@ export const reservationService = {
 
       // 3. Crear reserva
       const { data: reserva, error: reservaError } = await supabase
-        .from('reservas')
+        .from('Booking')
         .insert([{
-          viaje_id: viajeId,
-          pasajero_id: pasajeroId,
-          monto,
-          pin,
-          estado: 'pendiente',
-          estado_pago: 'pendiente'
+          trip_id: viajeId,
+          passenger_id: pasajeroId,
+          boarding_pin: pin,
+          status: 'REQUESTED',
+          payment_status: 'PENDING',
         }])
-        .select()
+        .select(BOOKING_COLS)
         .single();
 
       // Si falla la creacion de la reserva, devolver el asiento.
@@ -40,9 +44,10 @@ export const reservationService = {
         throw reservaError;
       }
 
-      // 4. Procesar pago en escrow (simulado)
-      await escrowService.retenerPago(reserva.id, monto);
-
+      // Modelo "tarjeta-en-archivo" (estilo Uber): la reserva NO cobra nada.
+      // El cobro a la tarjeta del pasajero ocurre al iniciar el viaje, cuando el
+      // conductor valida el PIN de abordaje (Edge Function mp-charge-trip).
+      // La reserva queda con payment_status = 'PENDING'.
       return { success: true, data: reserva };
     } catch (error: any) {
       logger.error('Error creando reserva', error);
@@ -53,14 +58,9 @@ export const reservationService = {
   getMyReservations: async (pasajeroId: string) => {
     try {
       const { data, error } = await supabase
-        .from('reservas')
-        .select(`
-          *,
-          viajes (*, rutas (*)),
-          usuarios!reservas_pasajero_id_fkey (nombre, reputacion_promedio)
-        `)
-        .eq('pasajero_id', pasajeroId)
-        .order('created_at', { ascending: false });
+        .from('Booking')
+        .select(`${BOOKING_COLS}, Trip (*)`)
+        .eq('passenger_id', pasajeroId);
 
       if (error) throw error;
       return { success: true, data };
@@ -72,24 +72,24 @@ export const reservationService = {
 
   cancelReservation: async (reservaId: string) => {
     try {
-      // Obtener el viaje_id para restaurar el asiento
+      // Obtener el trip_id para restaurar el asiento
       const { data: reserva } = await supabase
-        .from('reservas')
-        .select('viaje_id')
+        .from('Booking')
+        .select('trip_id')
         .eq('id', reservaId)
         .single();
 
       if (reserva) {
-        await supabase.rpc('liberar_asiento', { p_viaje_id: reserva.viaje_id });
+        await supabase.rpc('liberar_asiento', { p_viaje_id: reserva.trip_id });
       }
 
-      // Reembolsar dinero
+      // Reembolsar dinero (no-op si no había retención)
       await escrowService.reembolsarPago(reservaId);
 
       // Cancelar reserva
       const { error } = await supabase
-        .from('reservas')
-        .update({ estado: 'cancelada' })
+        .from('Booking')
+        .update({ status: 'CANCELLED' })
         .eq('id', reservaId);
 
       if (error) throw error;
@@ -98,5 +98,5 @@ export const reservationService = {
       logger.error('Error cancelando reserva', error);
       return { success: false, error: error.message };
     }
-  }
+  },
 };

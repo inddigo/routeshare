@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PASSENGER
+  DRIVER
+}
+
+enum PaymentStatus {
+  PENDING
+  ESCROW
+  RELEASED
+}
+
+enum TripStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  REQUESTED
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id                  String    @id @default(uuid()) @db.Uuid
+  email               String    @unique
+  full_name           String
+  phone               String?
+  rut                 String?   @unique
+  avatar_url          String?
+  role                Role      @default(PASSENGER)
+  university_verified Boolean   @default(false)
+  stripe_customer_id  String?   @unique
+  
+  vehicles            Vehicle[]
+  trips_driven        Trip[]    @relation("DriverTrips")
+  bookings            Booking[]
+  wallet              Wallet?
+}
+
+model Vehicle {
+  id                  String    @id @default(uuid()) @db.Uuid
+  driver_id           String    @db.Uuid
+  make_model          String
+  license_plate       String    @unique
+  verification_status String    @default("PENDING") // PENDING, VERIFIED, REJECTED
+  
+  driver              User      @relation(fields: [driver_id], references: [id])
+}
+
+model Trip {
+  id                  String    @id @default(uuid()) @db.Uuid
+  driver_id           String    @db.Uuid
+  origin_name         String
+  destination_name    String
+  origin_lat          Float
+  origin_lng          Float
+  destination_lat     Float
+  destination_lng     Float
+  departure_datetime  DateTime
+  available_seats     Int
+  suggested_price_clp Int
+  status              TripStatus @default(SCHEDULED)
+  
+  driver              User       @relation("DriverTrips", fields: [driver_id], references: [id])
+  bookings            Booking[]
+}
+
+model Booking {
+  id             String        @id @default(uuid()) @db.Uuid
+  trip_id        String        @db.Uuid
+  passenger_id   String        @db.Uuid
+  status         BookingStatus @default(REQUESTED)
+  payment_status PaymentStatus @default(PENDING)
+  boarding_pin   String        @db.VarChar(3)
+  
+  trip           Trip          @relation(fields: [trip_id], references: [id])
+  passenger      User          @relation(fields: [passenger_id], references: [id])
+}
+
+model Wallet {
+  id                String   @id @default(uuid()) @db.Uuid
+  user_id           String   @unique @db.Uuid
+  available_balance Int      @default(0)
+  escrow_balance    Int      @default(0)
+  
+  user              User     @relation(fields: [user_id], references: [id])
+}

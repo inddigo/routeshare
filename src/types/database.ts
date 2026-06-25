@@ -1,98 +1,86 @@
 // src/types/database.ts
+// Tipos del esquema REAL de la base de datos (tablas en inglés, estilo Prisma).
+// Fuente de verdad: Supabase project jsutuayzayjrkmlidjav + database/migrations/.
 
-export interface Usuario {
+export type Role = 'PASSENGER' | 'DRIVER';
+export type TripStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type BookingStatus = 'REQUESTED' | 'CONFIRMED' | 'CANCELLED';
+export type PaymentStatus = 'PENDING' | 'ESCROW' | 'RELEASED';
+
+export interface User {
   id: string;
   email: string;
-  nombre: string;
-  apellido_paterno?: string;
-  apellido_materno?: string;
-  rut?: string;
-  celular?: string;
-  rol: 'conductor' | 'pasajero' | 'ambos';
-  estado?: 'activo' | 'inactivo' | 'suspendido';
-  reputacion_promedio?: number;
-  created_at?: string;
+  full_name: string;
+  phone?: string | null;
+  rut?: string | null;
+  avatar_url?: string | null;
+  role: Role;
+  university_verified: boolean;
+  mp_customer_id?: string | null;
+  license_url?: string | null;
+  cv_url?: string | null;
 }
 
-export interface Ruta {
-  id?: string;
-  conductor_id: string;
-  origen_lat: number;
-  origen_lng: number;
-  destino_lat: number;
-  destino_lng: number;
-  es_sede_pucv: boolean;
+export interface Vehicle {
+  id: string;
+  driver_id: string;
+  make_model: string;
+  license_plate: string;
+  verification_status: string; // 'PENDING' por defecto
+  capacity: number;
+  registration_doc_url?: string | null;
 }
 
-export interface Viaje {
-  id?: string;
-  ruta_id: string;
-  conductor_id: string;
-  estado: 'programado' | 'activo' | 'completado' | 'cancelado';
-  asientos_disponibles: number;
-  fecha_hora: string;
-  current_lat?: number;
-  current_lng?: number;
-  last_location_update?: string;
+export interface Trip {
+  id: string;
+  driver_id: string;
+  origin_name: string;
+  destination_name: string;
+  origin_lat: number;
+  origin_lng: number;
+  destination_lat: number;
+  destination_lng: number;
+  departure_datetime: string;
+  available_seats: number;
+  suggested_price_clp: number;
+  status: TripStatus;
 }
 
-export interface Reserva {
-  id?: string;
-  viaje_id: string;
-  pasajero_id: string;
-  estado: 'pendiente' | 'confirmada' | 'rechazada' | 'cancelada';
-  pin?: string;
-  monto?: number;
-  estado_pago?: 'pendiente' | 'retenido' | 'liberado' | 'reembolsado';
+// Nota: boarding_pin y pin_attempts existen en la tabla pero NO son legibles
+// por el cliente (grants por columna). El pasajero consulta su PIN con el RPC
+// obtener_pin_abordaje; el conductor valida con validar_pin.
+export interface Booking {
+  id: string;
+  trip_id: string;
+  passenger_id: string;
+  status: BookingStatus;
+  payment_status: PaymentStatus;
 }
 
-export interface Conductor {
-  id?: string;
-  usuario_id: string;
-  licencia_url?: string;
-  hoja_vida_url?: string;
-  estado_aprobacion?: 'pendiente' | 'aprobado' | 'rechazado';
-  motivo_rechazo?: string;
-  created_at?: string;
+export interface Wallet {
+  id: string;
+  user_id: string;
+  available_balance: number; // CLP entero
+  escrow_balance: number; // CLP entero
 }
 
-export interface Vehiculo {
-  id?: string;
-  conductor_id: string;
-  patente: string;
-  modelo: string;
-  capacidad: number;
-  padron_url?: string;
-  created_at?: string;
+export interface Rating {
+  id: string;
+  trip_id: string;
+  rater_id: string;
+  rated_id: string;
+  score: number; // 1-5
+  comment?: string | null;
+  created_at: string;
 }
 
-export interface Pago {
-  id?: string;
-  reserva_id: string;
-  monto: number;
-  estado?: 'retenido' | 'liberado' | 'reembolsado' | 'error';
-  comision_porcentaje?: number;
-  fecha_pago?: string;
-  fecha_liberacion?: string;
-}
-
-export interface Calificacion {
-  id?: string;
-  viaje_id: string;
-  evaluador_id: string;
-  evaluado_id: string;
-  puntaje: 1 | 2 | 3 | 4 | 5;
-  comentario?: string;
-  created_at?: string;
-}
-
-export interface Reporte {
-  id?: string;
-  usuario_id: string;
-  viaje_id: string;
-  tipo: 'incidente' | 'no_show' | 'queja' | 'otro';
-  descripcion: string;
-  estado?: 'pendiente' | 'en_revision' | 'resuelto';
-  respuesta_admin?: string;
-  created_at?: string;
+export interface Report {
+  id: string;
+  trip_id: string;
+  reporter_id: string;
+  reported_user_id: string;
+  type: string; // 'no_show', etc.
+  description?: string | null;
+  status: string; // 'PENDING' por defecto
+  created_at: string;
 }

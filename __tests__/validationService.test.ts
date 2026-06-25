@@ -53,9 +53,14 @@ describe('validationService', () => {
   });
 
   describe('validateRut', () => {
-    it('acepta formatos validos', () => {
-      expect(validateRut('12.345.678-9')).toBe(true);
-      expect(validateRut('12345678-9')).toBe(true);
+    it('acepta RUTs con digito verificador correcto (modulo 11)', () => {
+      expect(validateRut('11.111.111-1')).toBe(true);
+      expect(validateRut('12345678-5')).toBe(true);
+      expect(validateRut('12.345.678-5')).toBe(true);
+    });
+    it('rechaza digito verificador incorrecto', () => {
+      expect(validateRut('12345678-9')).toBe(false);
+      expect(validateRut('11.111.111-2')).toBe(false);
     });
     it('rechaza formatos invalidos', () => {
       expect(validateRut('abc')).toBe(false);

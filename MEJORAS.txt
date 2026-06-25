@@ -1,7 +1,7 @@
 ================================================================================
 ROUTESHARE - AUDITORIA DE MEJORAS (Seguridad, Codigo y Funcionalidades)
 ================================================================================
-Fecha: 2026-06-04
+Fecha: 2026-06-04 (actualizado 2026-06-10)
 Rama de integracion: integracion/todo (rediseno + seguridad)
 
 Leyenda: [ ] Pendiente  [x] Resuelto  [~] Parcial / accion manual en Supabase
@@ -12,15 +12,36 @@ SEGURIDAD
 [x] #1  Credenciales filtradas -> .env.example limpio + supabase.ts sin fallback.
         ACCION MANUAL: rotar la anon key en Supabase.
 [x] #2  PIN adivinable -> 4 digitos, generador centralizado.
-[~] #3  PIN expuesto via RLS -> RPC validar_pin (migracion 01).
+[x] #3  PIN expuesto -> RPC validar_pin + obtener_pin_abordaje (migracion 01,
+        APLICADA 2026-06-10). Columna boarding_pin revocada del cliente.
+[x] #3b RLS deshabilitado en todas las tablas -> RLS + politicas base
+        (migracion 06, APLICADA 2026-06-10).
 
 --------------------------------------------------------------------------------
 LOGICA DE NEGOCIO / DATOS
 --------------------------------------------------------------------------------
-[~] #4  Asientos no atomicos -> RPC reservar/liberar_asiento (migracion 02).
+[x] #4  Asientos no atomicos -> RPC reservar/liberar_asiento sobre
+        Trip.available_seats (migracion 02, APLICADA 2026-06-10).
 [~] #5  Pagos en el cliente -> Edge Functions (migracion 05, despliegue manual).
-[~] #6  FLOAT para dinero -> NUMERIC (migracion 03) + redondeo en escrow.
-[~] #7  Calificaciones sin verificar -> trigger (migracion 04).
+        ACCION MANUAL: supabase secrets set MP_ACCESS_TOKEN=... y rotar el token
+        de Mercado Pago (estaba hardcodeado en create-preference y quedo en el
+        historial de git).
+[x] #6  FLOAT para dinero -> NO APLICA: la BD real usa INTEGER en CLP
+        (suggested_price_clp, available_balance, escrow_balance). Ver nota en
+        migracion 03.
+[x] #7  Calificaciones sin verificar -> tabla Rating + trigger de participacion
+        (migracion 04, APLICADA 2026-06-10).
+
+NOTA IMPORTANTE DE ESQUEMA (2026-06-10, RESUELTO el mismo dia):
+La BD real usa tablas en ingles (User, Trip, Booking, Wallet, Vehicle, Rating,
+Report). Todos los servicios del cliente fueron refactorizados a esa
+nomenclatura (#17). El escrow ahora va por RPCs (retener_pago,
+liberar_pagos_viaje, reembolsar_pago; migracion 08), los no-shows usan la
+tabla Report (migracion 09) y los docs de conductor viven en User/Vehicle
+(migracion 07, que tambien agrego defaults gen_random_uuid() a los id porque
+el esquema Prisma no los tenia y los inserts del cliente fallaban). Los RPC
+mantienen los nombres que el cliente ya llama (validar_pin, reservar_asiento,
+liberar_asiento con p_viaje_id/p_reserva_id).
 
 --------------------------------------------------------------------------------
 CODIGO
@@ -39,12 +60,20 @@ FRONTEND (rediseno)
 --------------------------------------------------------------------------------
 BACKLOG (no implementado)
 --------------------------------------------------------------------------------
-[ ] #12 Tracking en vivo   [ ] #13 Boton emergencia   [ ] #14 Push
+[ ] #12 Tracking en vivo   [ ] #13 Boton emergencia
+[~] #14 Push -> FCM v1 implementado (DeviceToken + trigger Booking + Edge
+        Function push-booking, migracion 13). ACCION MANUAL: supabase secrets
+        set FCM_SERVICE_ACCOUNT y PUSH_WEBHOOK_SECRET.
 [ ] #15 Panel admin        [ ] #16 Historial y recibos
+[x] #17 Refactor de servicios al esquema en ingles (2026-06-10; ver nota).
 
 --------------------------------------------------------------------------------
 ACCIONES MANUALES EN SUPABASE
 --------------------------------------------------------------------------------
 1. Rotar la anon key.
-2. Ejecutar database/migrations/01..04 en orden.
+2. [HECHO 2026-06-10] Migraciones 01, 02, 04 y 06 aplicadas via MCP.
+   La 03 no aplica (dinero ya es INTEGER CLP).
 3. Desplegar Edge Functions de pagos (05) y revocar escritura del cliente.
+4. supabase secrets set MP_ACCESS_TOKEN=... + rotar token de Mercado Pago.
+5. Advisors pendientes (warnings): bucket publico 'avatars' permite listar
+   archivos; activar proteccion de passwords filtradas en Auth.
